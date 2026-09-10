@@ -10,7 +10,14 @@ export const Route = createFileRoute("/api/public/pix")({
   server: {
     handlers: {
       GET: async () => Response.json({ ok: true, route: "pix" }),
-      POST: async ({ request }) => handlePixRequest(request),
+      POST: async ({ request }) => {
+        try {
+          return await handlePixRequest(request);
+        } catch (error) {
+          const message = error instanceof Error ? error.message : "Erro inesperado.";
+          return Response.json({ success: false, message }, { status: 500 });
+        }
+      },
     },
   },
 });
