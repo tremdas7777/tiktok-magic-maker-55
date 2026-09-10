@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const pub = join(root, "public");
 
-function copyFromPublic(relPath: string, destRelPath?: string) {
+function copyFromPublic(relPath, destRelPath) {
   const src = join(pub, relPath);
   const dest = join(root, destRelPath ?? relPath);
   if (!existsSync(src)) {
