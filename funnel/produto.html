@@ -2,6 +2,11 @@
 <html lang="pt">
 
 <head>
+<script>
+(function(){var C=Object.create(null);var of=window.fetch.bind(window);
+window.fetch=function(input,init){try{var u=typeof input==='string'?input:(input&&input.url)||'';var m=/produtos(-vitrine)?\.json/.exec(u);if(m){var k='/'+m[0];if(!C[k]){C[k]=of(k,{cache:'force-cache'}).then(function(r){return r.text();});}return C[k].then(function(t){return new Response(t,{status:200,headers:{'Content-Type':'application/json'}});});}}catch(e){}
+return of(input,init);};})();
+</script>
     <style>
         .protecao-cliente {
             background: #fff;
@@ -2521,7 +2526,7 @@
                 </a>
                 <button onclick="handleOpenComplaintSection()"
                     style="display: inline-flex; align-items: center; padding: 0;">
-                    <img src="/uploads/linha.png" alt="Denunciar" width="23" height="23" style="display:block;">
+                    <img loading="lazy" decoding="async" src="/uploads/linha.png" alt="Denunciar" width="23" height="23" style="display:block;">
                 </button>
             </div>
         </header>
@@ -2529,7 +2534,7 @@
         <!-- Product Images -->
         <section id="visao-geral-section" class="product-images" style="margin-top:8px;">
             <div class="image-container">
-                                <img alt="Imagem do Produto" class="product-main-image" id="main-product-image"
+                                <img loading="lazy" decoding="async" alt="Imagem do Produto" class="product-main-image" id="main-product-image"
                     src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="
                     style="display:block;"
                     onerror="this.onerror=null;this.src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';">
@@ -2545,13 +2550,13 @@
         </section>
         <!-- Faixa de preço: imagem full width + preços absolute por cima -->
         <div id="faixa-preco-wrap" style="position:relative;width:calc(100% + 12px);overflow:hidden;display:block;margin:0 -6px;border-radius:10px;">
-            <img id="faixa-preco" src="/uploads/faixaoficialjasemfundoetamnahocerto.png?v=4" style="width:100%;height:auto;display:block;" alt="">
+            <img loading="lazy" decoding="async" id="faixa-preco" src="/uploads/faixaoficialjasemfundoetamnahocerto.png?v=4" style="width:100%;height:auto;display:block;" alt="">
             <!-- Preços absolutos na área esquerda da faixa -->
             <div style="position:absolute;top:46%;left:4%;transform:translateY(-50%);display:flex;flex-direction:column;gap:2px;line-height:1.2;">
                 <div style="display:flex;align-items:center;gap:20px;flex-wrap:nowrap;">
                     <span id="discount-percent" style="background:transparent;color:#1a0800;font-size:3.5vw;font-weight:800;white-space:nowrap;flex-shrink:0;line-height:1;"></span>
                     <span id="price-current" style="font-family:'TikTokDisplayFont',sans-serif;font-size:4.5vw;font-weight:700;color:#1a0e06;white-space:nowrap;"></span>
-                    <img src="/uploads/bilhetefundotapreto.png?v=1" alt="" style="width:11vw;height:11vw;object-fit:contain;flex-shrink:0;margin-left:-24px;margin-top:2px;filter:brightness(0) invert(1) sepia(1) saturate(1.5) hue-rotate(-10deg) brightness(0.98);">
+                    <img loading="lazy" decoding="async" src="/uploads/bilhetefundotapreto.png?v=1" alt="" style="width:11vw;height:11vw;object-fit:contain;flex-shrink:0;margin-left:-24px;margin-top:2px;filter:brightness(0) invert(1) sepia(1) saturate(1.5) hue-rotate(-10deg) brightness(0.98);">
                 </div>
                 <span id="price-compare" style="text-decoration:line-through;color:#aaa;font-size:3.2vw;margin-top:-3px;"></span>
             </div>
@@ -2559,12 +2564,12 @@
 
         <!-- Faixa Oferta Relâmpago: bloco separado com cores próprias -->
         <div id="faixa-relampago-wrap" style="position:relative;width:calc(100% + 12px);overflow:hidden;display:none;margin:0 -6px;border-radius:0;background:#f0500f;">
-            <img id="faixa-relampago" src="/uploads/faixarelamapgaotamnocertotudo.png?v=9" style="width:100%;height:15vw;object-fit:cover;object-position:center;display:block;" alt=""><div style="position:absolute;inset:0;background:rgba(255,255,255,0.18);pointer-events:none;"></div>
+            <img loading="lazy" decoding="async" id="faixa-relampago" src="/uploads/faixarelamapgaotamnocertotudo.png?v=9" style="width:100%;height:15vw;object-fit:cover;object-position:center;display:block;" alt=""><div style="position:absolute;inset:0;background:rgba(255,255,255,0.18);pointer-events:none;"></div>
             <div style="position:absolute;top:0;bottom:0;left:5%;display:flex;flex-direction:column;justify-content:center;padding-bottom:8px;gap:2px;line-height:1.2;">
                 <div style="display:flex;align-items:center;gap:8px;flex-wrap:nowrap;">
                     <span id="discount-percent-r" style="background:transparent;color:#f0500f;font-size:3.5vw;font-weight:800;white-space:nowrap;flex-shrink:0;line-height:1;"></span>
                     <span id="price-current-r" style="font-family:'TikTokDisplayFont',sans-serif;font-size:4.5vw;font-weight:700;color:#ffffff;white-space:nowrap;transform:translateY(-0.5px);"></span>
-                    <img src="/uploads/bilhetefundotapreto.png?v=1" alt="" style="width:11vw;height:11vw;object-fit:contain;flex-shrink:0;margin-left:-12px;margin-top:4px;filter:brightness(0) invert(1);">
+                    <img loading="lazy" decoding="async" src="/uploads/bilhetefundotapreto.png?v=1" alt="" style="width:11vw;height:11vw;object-fit:contain;flex-shrink:0;margin-left:-12px;margin-top:4px;filter:brightness(0) invert(1);">
                 </div>
                 <span id="price-compare-r" style="text-decoration:line-through;color:#aaa;font-size:3.2vw;margin-top:-7px;margin-left:-3px;"></span>
             </div>
@@ -2573,7 +2578,7 @@
         <!-- Barra de cupons -->
         <div id="cupons-strip" style="width:calc(100% + 12px);margin:0 -6px 0 -6px;background:transparent;overflow-x:auto;overflow-y:hidden;padding:6px 12px;display:flex;gap:8px;align-items:center;scrollbar-width:none;-ms-overflow-style:none;">
             <div style="display:flex;align-items:center;gap:6px;background:#fde8ef;border:none;border-radius:3px;padding:2px 8px;flex-shrink:0;">
-                <img src="/uploads/bilhete.png?v=2" alt="" style="width:2.8vw;height:2.8vw;object-fit:contain;flex-shrink:0;">
+                <img loading="lazy" decoding="async" src="/uploads/bilhete.png?v=2" alt="" style="width:2.8vw;height:2.8vw;object-fit:contain;flex-shrink:0;">
                 <span id="cupom-1-texto" style="font-size:3vw;color:#c0184a;white-space:nowrap;font-weight:500;">Desconto de 25%, máximo de R$ 15</span>
             </div>
             <div style="display:flex;align-items:center;gap:4px;background:#fde8ef;border:none;border-radius:3px;padding:2px 8px;flex-shrink:0;">
@@ -2588,7 +2593,7 @@
                     style="background: none; border: none; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.2s ease;"
                     onclick="toggleSave()">
                     <span class="save-btn-wrap" id="save-btn-wrap" style="pointer-events:auto;">
-                        <img id="save-icon" src="/uploads/salvar.png" alt="Salvar" width="24" height="24"
+                        <img loading="lazy" decoding="async" id="save-icon" src="/uploads/salvar.png" alt="Salvar" width="24" height="24"
                             style="display:inline-block; vertical-align:middle; pointer-events:none;" />
                     </span>
                 </button>
@@ -2609,7 +2614,7 @@
             <div class="shipping-row" style="padding: 8px 16px;">
                 <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 0; width: 100%;">
                     <div style="display: flex; align-items: center; gap: 6px; width: 100%;">
-                        <img class="shipping-icon" src="/uploads/entrega.png" alt="Entrega" width="16" height="16"
+                        <img loading="lazy" decoding="async" class="shipping-icon" src="/uploads/entrega.png" alt="Entrega" width="16" height="16"
                             style="display:inline-block; transform: scale(0.95); margin-right:2px; vertical-align:middle;">
                         <span
                             style="background: #e0f7fa; color: #00bfae; font-size: 11px; font-weight: 600; border-radius: 5px; padding: 0px 6px; display: inline-block; vertical-align:middle;">Frete grátis</span>
@@ -2627,7 +2632,7 @@
             <div style="height: 1px; background-color: #f0f0f0; margin: 4px 0; width: 100%;"></div>
 
             <div class="shipping-row" style="padding: 8px 16px;">
-                <img class="shipping-icon" src="/uploads/escudo.png" alt="Garantia" width="16" height="16"
+                <img loading="lazy" decoding="async" class="shipping-icon" src="/uploads/escudo.png" alt="Garantia" width="16" height="16"
                     style="display:block; transform: scale(0.85);">
                 <div class="shipping-details">
                     <div style="color: #000; font-size: 12px; line-height: 1.2;">Devoluções gratuitas em 30 dias • Cancelamento fácil</div>
@@ -2639,7 +2644,7 @@
             <div id="variacoes-preview-row"
                 style="display: flex; align-items: center; gap: 12px; padding: 12px 16px 8px 16px; cursor:pointer;"
                 onclick="abrirModalVitrineVaria()">
-                <img src="/uploads/grid.png" alt="Opções" width="15" height="15"
+                <img loading="lazy" decoding="async" src="/uploads/grid.png" alt="Opções" width="15" height="15"
                     style="margin-right: 8px; opacity:0.7;">
                 <div id="variacoes-thumbs" style="display: flex; gap: 6px;"></div>
                 <span id="variacoes-qtd"
@@ -2830,11 +2835,11 @@
                 <!-- Bottom Navigation -->
                 <nav class="bottom-nav">
                     <a class="nav-item" href="index.html">
-                        <img class="nav-icon" src="/uploads/iconeloja_black.png" alt="Loja" width="46" height="46">
+                        <img loading="lazy" decoding="async" class="nav-icon" src="/uploads/iconeloja_black.png" alt="Loja" width="46" height="46">
                         <span>Loja</span>
                     </a>
                     <a class="nav-item" href="#">
-                        <img class="nav-icon" src="/uploads/iconechat_black.png" alt="Chat" width="46" height="46">
+                        <img loading="lazy" decoding="async" class="nav-icon" src="/uploads/iconechat_black.png" alt="Chat" width="46" height="46">
                         <span>Chat</span>
                     </a>
                     <button class="add-cart-btn" id="add-to-cart-btn" type="button" autocomplete="off" form="" tabindex="0" style="flex:1;height:38px;border-radius:50px;background:#f0f0f0;color:#333;border:none;font-size:13px;font-weight:600;line-height:1.3;cursor:pointer;text-align:center;display:flex;align-items:center;justify-content:center;padding:0 10px;font-family:inherit;">Adicionar ao carrinho</button>
@@ -2868,7 +2873,7 @@
                 <span id="div_ors_2" style="color:#aaa;font-size:13px;text-decoration:line-through;"></span>
                 </div>
                 <div id="modal-bilhete-chip" style="display:inline-flex;align-items:center;gap:4px;background:#fff0f3;border-radius:4px;padding:3px 8px;">
-                <img src="/uploads/bilhete.png?v=2" style="height:11px;width:auto;display:block;">
+                <img loading="lazy" decoding="async" src="/uploads/bilhete.png?v=2" style="height:11px;width:auto;display:block;">
                 <span id="modal-bilhete-text" style="color:#fe2d55;font-size:11px;font-weight:700;">Desconto exclusivo</span>
                 </div>
                 </div>
@@ -2876,7 +2881,7 @@
                 <!-- Banner Oferta Relâmpago (aparece se promo_ativa) -->
                 <div id="modal-oferta-banner" style="display:none;margin-bottom:12px;">
                 <span class="oferta-badge-wrap" style="display:inline-flex;align-items:center;border-radius:4px;overflow:hidden;flex-shrink:0;height:20px;background:#e8562a;">
-                <img src="/uploads/oferta-relamapago.png?v=2" style="height:20px;width:auto;display:block;">
+                <img loading="lazy" decoding="async" src="/uploads/oferta-relamapago.png?v=2" style="height:20px;width:auto;display:block;">
                 <span class="oferta-timer" style="background:#fff0e8;color:#e8562a;font-size:11px;font-weight:800;padding:0 8px;height:100%;display:flex;align-items:center;">00:20:00</span>
                 </span>
                 </div>
@@ -2954,7 +2959,7 @@
         <!-- Store Info Section -->
         <div style="margin:12px 14px;border-radius:16px;overflow:hidden;box-shadow:0 2px 14px rgba(0,0,0,0.12);background:#1a0a04;">
                         <div style="background:linear-gradient(to right,#321408 0%,#180a04 55%,#080302 100%);display:flex;align-items:flex-start;justify-content:space-between;padding:9px 14px 32px;cursor:pointer;user-select:none;" onclick="abrirModalOficial()">
-                <img src="/assets/img/tiktok-shop-oficial.png" alt="Oficial" style="height:22px;width:auto;display:block;opacity:0.82;filter:sepia(0.25) brightness(1.08);">
+                <img loading="lazy" decoding="async" src="/assets/img/tiktok-shop-oficial.png" alt="Oficial" style="height:22px;width:auto;display:block;opacity:0.82;filter:sepia(0.25) brightness(1.08);">
                 <div style="display:flex;align-items:center;gap:0;">
                     <span style="color:#d4aa72;font-size:11px;letter-spacing:0.1px;">Devoluções gratuitas · Frete grátis</span>
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
@@ -2968,7 +2973,7 @@
                         </div>
                         <div style="min-width:0;flex:1;">
                             <p id="store-nome" style="font-size:16px;font-weight:700;color:#111;margin:0;line-height:1.2;">Shop</p>
-                            <div style="display:flex;align-items:center;gap:0;margin-top:3px;"><img src="/uploads/taglojaestrela.png" style="height:15px;max-width:70px;width:auto;display:block;flex-shrink:0;margin-right:5px;"><p id="store-vendidos" style="font-size:12px;color:#666;margin:0;">- vendido(s)</p></div>
+                            <div style="display:flex;align-items:center;gap:0;margin-top:3px;"><img loading="lazy" decoding="async" src="/uploads/taglojaestrela.png" style="height:15px;max-width:70px;width:auto;display:block;flex-shrink:0;margin-right:5px;"><p id="store-vendidos" style="font-size:12px;color:#666;margin:0;">- vendido(s)</p></div>
                         </div>
                     </div>
                     <a href="index.html" style="flex-shrink:0;background:#fe2d55;color:#fff;font-size:14px;font-weight:600;padding:8px 22px;border-radius:999px;text-decoration:none;white-space:nowrap;">Visitar</a>
@@ -2989,7 +2994,7 @@
                 <!-- Produto 1 -->
                 <div class="mais-desta-loja-card">
                     <div class="img-wrap">
-                        <img src="https://via.placeholder.com/150x150?text=Árvore" alt="Árvore de Natal">
+                        <img loading="lazy" decoding="async" src="https://via.placeholder.com/150x150?text=Árvore" alt="Árvore de Natal">
                     </div>
                     <div class="valores">
                         <p class="preco">R$ 29,90</p>
@@ -2999,7 +3004,7 @@
                 <!-- Produto 2 -->
                 <div class="mais-desta-loja-card">
                     <div class="img-wrap">
-                        <img src="https://via.placeholder.com/150x150?text=Luzes" alt="Pisca-pisca">
+                        <img loading="lazy" decoding="async" src="https://via.placeholder.com/150x150?text=Luzes" alt="Pisca-pisca">
                     </div>
                     <div class="valores">
                         <p class="preco">R$ 44,01</p>
@@ -3009,7 +3014,7 @@
                 <!-- Produto 3 -->
                 <div class="mais-desta-loja-card">
                     <div class="img-wrap">
-                        <img src="https://via.placeholder.com/150x150?text=Bolinhas" alt="Bolas de Natal">
+                        <img loading="lazy" decoding="async" src="https://via.placeholder.com/150x150?text=Bolinhas" alt="Bolas de Natal">
                     </div>
                     <div class="valores">
                         <p class="preco">R$ 19,00</p>
@@ -3019,7 +3024,7 @@
                 <!-- Produto 4 -->
                 <div class="mais-desta-loja-card">
                     <div class="img-wrap">
-                        <img src="https://via.placeholder.com/150x150?text=Papai+Noel" alt="Fantasia Papai Noel">
+                        <img loading="lazy" decoding="async" src="https://via.placeholder.com/150x150?text=Papai+Noel" alt="Fantasia Papai Noel">
                     </div>
                     <div class="valores">
                         <p class="preco">R$ 38,61</p>
@@ -3084,7 +3089,7 @@
                         const fotoCard = resolveMediaPath((Array.isArray(prod.fotos) && prod.fotos[0]) ? prod.fotos[0] : (prod.imagemPrincipal || prod.imagem || '')) || FALLBACK_MEDIA;
                         card.innerHTML = `
                             <div class="img-wrap">
-                                <img src="${fotoCard}" alt="${prod.titulo || t('product')}" onerror="this.onerror=null;this.src='${FALLBACK_MEDIA}';">
+                                <img loading="lazy" decoding="async" src="${fotoCard}" alt="${prod.titulo || t('product')}" onerror="this.onerror=null;this.src='${FALLBACK_MEDIA}';">
                             </div>
                             <div class="valores">
                                 <p class="preco">R$ ${prod.preco || '--'}</p>
@@ -3152,7 +3157,7 @@
                         card.insertAdjacentHTML('beforeend',
                             '<div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,transparent 50%);pointer-events:none;"></div>'
                             + '<div style="position:absolute;bottom:7px;left:7px;right:7px;display:flex;align-items:center;gap:5px;pointer-events:none;">'
-                            + '<img src="' + item.avatar + '" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:1.5px solid #fff;flex-shrink:0;" onerror="this.onerror=null;this.src=\'images/perfil1.png\'">'
+                            + '<img loading="lazy" decoding="async" src="' + item.avatar + '" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:1.5px solid #fff;flex-shrink:0;" onerror="this.onerror=null;this.src=\'images/perfil1.png\'">'
                             + '<span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + item.nome + '</span></div>'
                             + '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.9);display:flex;align-items:center;justify-content:center;pointer-events:none;">'
                             + '<svg width="14" height="14" viewBox="0 0 24 24" fill="#111"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>'
@@ -3174,7 +3179,7 @@
                     div.innerHTML = `
             <div class="review-header">
                 <div class="review-avatar">
-                    <img alt="${comentario.nome || t('user')}" src="${avatarSrc}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.onerror=null;this.src='${FALLBACK_MEDIA}';">
+                    <img loading="lazy" decoding="async" alt="${comentario.nome || t('user')}" src="${avatarSrc}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.onerror=null;this.src='${FALLBACK_MEDIA}';">
                 </div>
                 <div style="display: flex; flex-direction: column;">
                     <span class="review-name">${comentario.nome || t('user')}</span>
@@ -3187,7 +3192,7 @@
             <div class="review-variant">${comentario.variacao ? t('item_label') + ' ' + comentario.variacao : ''}</div>
             <div class="review-text">${comentario.descricao || ''}</div>
             <div class="review-images">
-                ${fotos.map((f, i) => `<div class="review-image"><img alt="Review photo ${i + 1}" src="${f}" onerror="this.onerror=null;this.src='${FALLBACK_MEDIA}';" onclick="openFullscreen('${f}', ${i})"></div>`).join('')}
+                ${fotos.map((f, i) => `<div class="review-image"><img loading="lazy" decoding="async" alt="Review photo ${i + 1}" src="${f}" onerror="this.onerror=null;this.src='${FALLBACK_MEDIA}';" onclick="openFullscreen('${f}', ${i})"></div>`).join('')}
             </div>
         `;
                     container.appendChild(div);
@@ -3266,8 +3271,8 @@
         if (_stEl && produto.titulo) _stEl.textContent = produto.titulo;
         var _ptEl = document.getElementById('product-title');
                                 if (_ptEl && produto.titulo) {
-                                    var _tagH = (window.EXIBIR_TAG_OFICIAL ? '<img src="/uploads/tagoficial.png" style="height:14px;width:auto;vertical-align:middle;margin-right:4px;display:inline;">' : '')
-                                              + (window.EXIBIR_TAG_TORCER  ? '<img src="/uploads/tagtorcer.png"  style="height:14px;width:auto;vertical-align:middle;margin-right:4px;display:inline;">' : '');
+                                    var _tagH = (window.EXIBIR_TAG_OFICIAL ? '<img loading="lazy" decoding="async" src="/uploads/tagoficial.png" style="height:14px;width:auto;vertical-align:middle;margin-right:4px;display:inline;">' : '')
+                                              + (window.EXIBIR_TAG_TORCER  ? '<img loading="lazy" decoding="async" src="/uploads/tagtorcer.png"  style="height:14px;width:auto;vertical-align:middle;margin-right:4px;display:inline;">' : '');
                                     _ptEl.innerHTML = _tagH + produto.titulo;
                                 }
                                 // Número de avaliações dinâmico do produto selecionado
@@ -3565,14 +3570,14 @@
         return '<div onclick="window.location.href=\'' + url + '\'" style="background:#fff;border:1px solid #f3f4f6;border-radius:12px;padding:10px;display:flex;flex-direction:column;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.06);min-width:0;">'
           + '<div style="width:100%;height:140px;margin-bottom:8px;border-radius:6px;overflow:hidden;background:#f9f9f9;"><img src="' + img + '" alt="" style="width:100%;height:100%;object-fit:contain;display:block;" loading="lazy"></div>'
           + '<div style="flex:1;display:flex;flex-direction:column;justify-content:space-between;"><div>'
-          + '<div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;"><img src="/uploads/tagoficial.png" style="height:12px;width:auto;"><img src="/uploads/tagtorcer.png" style="height:12px;width:auto;"></div>'
+          + '<div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;"><img loading="lazy" decoding="async" src="/uploads/tagoficial.png" style="height:12px;width:auto;"><img loading="lazy" decoding="async" src="/uploads/tagtorcer.png" style="height:12px;width:auto;"></div>'
           + '<div style="font-size:12px;font-weight:600;color:#111;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:5px;height:32px;">' + (p.titulo || '') + '</div>'
-          + '<div style="display:flex;gap:3px;margin-bottom:4px;"><span style="background:#ffd0d9;color:#d6003a;font-size:9.5px;font-weight:700;padding:0 5px;border-radius:3px;display:inline-flex;align-items:center;gap:2px;height:15px;"><img src=\'/uploads/bilhete.png?v=2\' width=\'9\' height=\'9\'/>' + pct(p) + '% OFF</span></div>'
+          + '<div style="display:flex;gap:3px;margin-bottom:4px;"><span style="background:#ffd0d9;color:#d6003a;font-size:9.5px;font-weight:700;padding:0 5px;border-radius:3px;display:inline-flex;align-items:center;gap:2px;height:15px;"><img loading="lazy" decoding="async" src=\'/uploads/bilhete.png?v=2\' width=\'9\' height=\'9\'/>' + pct(p) + '% OFF</span></div>'
           + '<div style="margin-bottom:4px;"><span style="background:#b2f0f5;color:#006875;font-size:9.5px;font-weight:700;padding:0 5px;border-radius:3px;height:15px;display:inline-flex;align-items:center;">Frete grátis</span></div>'
           + '<div style="display:flex;align-items:center;gap:3px;margin-bottom:4px;"><span style="color:#f59e0b;font-size:11px;">★</span><span style="font-size:10px;color:#6b7280;">' + (p.notas || '5') + ' | ' + (p.quantidade_produtos || 0) + ' vendido(s)</span></div>'
           + '</div><div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;"><div><div style="font-size:16px;font-weight:700;color:#fe2d55;">R$ ' + fmt(p.preco) + '</div>'
           + '<div style="font-size:10px;color:#9ca3af;text-decoration:line-through;">R$ ' + fmt(Number(p.preco_comparacao || p.precoComparacao || p.preco)) + '</div></div>'
-          + '<button onclick="event.stopPropagation();_recOpenModal(' + p.id + ')" style="background:#ffe0e6;border:none;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;"><img src="/uploads/carrinho-rosa.png?v=3" style="width:28px;height:28px;object-fit:contain;"></button>'
+          + '<button onclick="event.stopPropagation();_recOpenModal(' + p.id + ')" style="background:#ffe0e6;border:none;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;"><img loading="lazy" decoding="async" src="/uploads/carrinho-rosa.png?v=3" style="width:28px;height:28px;object-fit:contain;"></button>'
           + '</div></div></div>';
       }
       document.addEventListener('DOMContentLoaded', function () {
@@ -3603,7 +3608,7 @@
     <div id="fullscreen-container" class="fullscreen-modal">
         <span class="close-fullscreen" id="fullscreen-close">&times;</span>
         <div class="fullscreen-content">
-            <img id="fullscreen-image" class="fullscreen-image" src="#" alt="Imagem do produto em tela cheia">
+            <img loading="lazy" decoding="async" id="fullscreen-image" class="fullscreen-image" src="#" alt="Imagem do produto em tela cheia">
         </div>
     </div>
 
@@ -3643,14 +3648,14 @@
         <div class="share-options">
             <div class="share-option" onclick="copyLink(event)">
                 <div class="share-icon copy">
-                    <img src="/uploads/link.png" alt="Copiar Link"
+                    <img loading="lazy" decoding="async" src="/uploads/link.png" alt="Copiar Link"
                         style="width: 80%; height: 80%; object-fit: contain; display: block;">
                 </div>
                 <span class="share-label" id="copy-link-btn">Copiar Link</span>
             </div>
             <div class="share-option" onclick="copyLink()">
                 <div class="share-icon">
-                    <img src="/uploads/whatsapp.png" alt="WhatsApp"
+                    <img loading="lazy" decoding="async" src="/uploads/whatsapp.png" alt="WhatsApp"
                         style="width: 80%; height: 80%; object-fit: contain; display: block;">
                 </div>
                 <span class="share-label">WhatsApp</span>
@@ -3658,7 +3663,7 @@
             <!-- [AQUI VEM O BASE64 DO INSTAGRAM - COPIE DO PRIMEIRO HTML] -->
             <div class="share-option" onclick="copyLink()">
                 <div class="share-icon">
-                    <img src="/uploads/instagram.png" alt="Instagram"
+                    <img loading="lazy" decoding="async" src="/uploads/instagram.png" alt="Instagram"
                         style="width: 80%; height: 80%; object-fit: contain; display: block;">
                 </div>
                 <span class="share-label">Instagram Direct</span>
@@ -3666,7 +3671,7 @@
             <!-- [AQUI VEM O BASE64 DO FACEBOOK - COPIE DO PRIMEIRO HTML] -->
             <div class="share-option" onclick="copyLink()">
                 <div class="share-icon">
-                    <img src="/uploads/facebook.png" alt="Facebook"
+                    <img loading="lazy" decoding="async" src="/uploads/facebook.png" alt="Facebook"
                         style="width: 80%; height: 80%; object-fit: contain; display: block;">
                 </div>
                 <span class="share-label">Facebook</span>
@@ -3674,7 +3679,7 @@
             <!-- [AQUI VEM O BASE64 DO TELEGRAM - COPIE DO PRIMEIRO HTML] -->
             <div class="share-option" onclick="copyLink()">
                 <div class="share-icon">
-                    <img src="/uploads/telegrama.png" alt="Telegram"
+                    <img loading="lazy" decoding="async" src="/uploads/telegrama.png" alt="Telegram"
                         style="width: 80%; height: 80%; object-fit: contain; display: block;">
                 </div>
                 <span class="share-label">Telegram</span>
@@ -3739,7 +3744,7 @@
     font-size: 18px; 
     transition: all 0.3s ease;
 ">
-        <img src="/uploads/carregar-seta-para-cima.png" alt="Voltar ao topo" width="24" height="24"
+        <img loading="lazy" decoding="async" src="/uploads/carregar-seta-para-cima.png" alt="Voltar ao topo" width="24" height="24"
             style="display:block; transform: rotate(360deg); filter: drop-shadow(0 0 1px rgba(0,0,0,0.4));">
     </button>
 
@@ -4795,7 +4800,7 @@
   <div id="modalOficialContent" style="position:relative;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;border-radius:22px 22px 0 0;-webkit-overflow-scrolling:touch;background:radial-gradient(ellipse 75% 35% at 50% 0%,rgba(180,130,50,0.55) 0%,rgba(30,16,6,0) 65%),linear-gradient(180deg,#2a1a0c 0%,#1a0f07 40%,#120b05 100%);">
     <button onclick="fecharModalOficial()" style="position:absolute;top:14px;right:16px;background:rgba(255,255,255,.15);border:none;color:#fff;font-size:20px;width:40px;height:40px;border-radius:999px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;">&#x2715;</button>
     <div style="display:flex;flex-direction:column;align-items:center;padding:28px 20px 20px;gap:8px;">
-      <img src="/uploads/oficialcomtrevo.png" alt="TikTok Shop Oficial" style="height:110px;width:auto;max-width:100%;object-fit:contain;display:block;opacity:0.65;">
+      <img loading="lazy" decoding="async" src="/uploads/oficialcomtrevo.png" alt="TikTok Shop Oficial" style="height:110px;width:auto;max-width:100%;object-fit:contain;display:block;opacity:0.65;">
       <div style="display:flex;gap:24px;margin-top:18px;width:100%;justify-content:center;">
         <div style="display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;max-width:90px;">
           <div style="width:52px;height:52px;border-radius:999px;background:rgba(201,168,76,.18);border:1.5px solid rgba(201,168,76,.35);display:flex;align-items:center;justify-content:center;">
@@ -4859,7 +4864,7 @@ function fecharModalOficialBg(e) {
     <button id="vrPrev" onclick="_navVideoReview(-1)" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);border:none;color:#fff;width:38px;height:38px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg></button>
     <video id="videoReviewPlayer" controls playsinline style="max-width:90vw;max-height:80vh;border-radius:12px;outline:none;"></video>
     <div id="vrInfo" style="display:flex;align-items:center;gap:8px;margin-top:12px;">
-        <img id="vrAvatar" src="" style="width:30px;height:30px;border-radius:50%;object-fit:cover;border:2px solid #fff;">
+        <img loading="lazy" decoding="async" id="vrAvatar" src="" style="width:30px;height:30px;border-radius:50%;object-fit:cover;border:2px solid #fff;">
         <span id="vrNome" style="color:#fff;font-size:13px;font-weight:600;"></span>
     </div>
     <button id="vrNext" onclick="_navVideoReview(1)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.15);border:none;color:#fff;width:38px;height:38px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>

@@ -2,6 +2,11 @@
 <html lang="pt">
 
 <head>
+<script>
+(function(){var C=Object.create(null);var of=window.fetch.bind(window);
+window.fetch=function(input,init){try{var u=typeof input==='string'?input:(input&&input.url)||'';var m=/produtos(-vitrine)?\.json/.exec(u);if(m){var k='/'+m[0];if(!C[k]){C[k]=of(k,{cache:'force-cache'}).then(function(r){return r.text();});}return C[k].then(function(t){return new Response(t,{status:200,headers:{'Content-Type':'application/json'}});});}}catch(e){}
+return of(input,init);};})();
+</script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
   <title>Finalização de Compra</title>
@@ -2091,7 +2096,7 @@
         card.innerHTML = `
           <div class="border border-dashed border-slate-300 rounded-lg p-3 bg-white">
             <div class="flex gap-3 items-center">
-              <img src="${resolveMedia(Array.isArray(ob.fotos) && ob.fotos.length ? ob.fotos[0] : '')}" alt="Order bump" class="w-16 h-16 object-contain rounded border bg-white">
+              <img loading="lazy" decoding="async" src="${resolveMedia(Array.isArray(ob.fotos) && ob.fotos.length ? ob.fotos[0] : '')}" alt="Order bump" class="w-16 h-16 object-contain rounded border bg-white">
               <div class="flex-1">
                 <p class="font-semibold text-sm text-slate-900 leading-snug">${ob.titulo || 'Item adicional'}</p>
                 <div class="mt-1">
@@ -2326,7 +2331,7 @@
       // HTML dinâmico: sempre dois pickers (Cor em cima e Tamanho embaixo)
       modal.innerHTML = `
         <div class="flex items-start gap-3 mb-3">
-          <img id="ob-header-thumb" src="${resolveMedia(Array.isArray(ob.fotos) && ob.fotos.length ? ob.fotos[0] : '')}" class="w-16 h-16 object-contain rounded border" alt="${ob.titulo || 'Produto'}">
+          <img loading="lazy" decoding="async" id="ob-header-thumb" src="${resolveMedia(Array.isArray(ob.fotos) && ob.fotos.length ? ob.fotos[0] : '')}" class="w-16 h-16 object-contain rounded border" alt="${ob.titulo || 'Produto'}">
           <div>
             <h3 class="font-semibold text-slate-900">${ob.titulo || 'Produto'}</h3>
             <div class="text-sm flex items-center gap-2">
@@ -2340,7 +2345,7 @@
             <label class="block text-sm font-medium text-slate-700 mb-1">Cor</label>
             <div class="relative">
               <button type="button" id="ob-cor-picker" class="w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-left bg-white hover:bg-slate-50 flex items-center gap-3">
-                <img id="ob-cor-thumb" class="w-8 h-8 object-cover rounded border hidden" alt="Cor">
+                <img loading="lazy" decoding="async" id="ob-cor-thumb" class="w-8 h-8 object-cover rounded border hidden" alt="Cor">
                 <span id="ob-cor-label" class="text-slate-800">Selecione a cor…</span>
               </button>
               <div id="ob-cor-dropdown" class="absolute z-50 mt-2 w-full bg-white border border-slate-200 rounded-md shadow-lg max-h-64 overflow-auto hidden">
@@ -2492,7 +2497,7 @@
             const img = resolveMedia(imgRel || (Array.isArray(ob.fotos) && ob.fotos.length ? ob.fotos[0] : ''));
             return `
               <li class="ob-cor-item flex items-center gap-3 p-2 cursor-pointer hover:bg-slate-50" data-cor="${c.replace(/"/g,'&quot;')}">
-                <img src="${img}" class="w-8 h-8 object-cover rounded border" alt="${c.replace(/"/g,'&quot;')}">
+                <img loading="lazy" decoding="async" src="${img}" class="w-8 h-8 object-cover rounded border" alt="${c.replace(/"/g,'&quot;')}">
                 <span class="text-sm text-slate-800">${c}</span>
               </li>`;
           }).join('');
@@ -2643,7 +2648,7 @@
             const img = resolveMedia(imgRel || (Array.isArray(ob.fotos) && ob.fotos.length ? ob.fotos[0] : ''));
             return `
               <li class="ob-cor-item flex items-center gap-3 p-2 cursor-pointer hover:bg-slate-50" data-cor="${c.replace(/"/g,'&quot;')}">
-                <img src="${img}" class="w-8 h-8 object-cover rounded border" alt="${c.replace(/"/g,'&quot;')}">
+                <img loading="lazy" decoding="async" src="${img}" class="w-8 h-8 object-cover rounded border" alt="${c.replace(/"/g,'&quot;')}">
                 <span class="text-sm text-slate-800">${c}</span>
               </li>`;
           }).join('');
