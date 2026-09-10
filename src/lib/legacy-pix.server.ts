@@ -33,6 +33,15 @@ function toCents(value: unknown): number {
   return Math.max(1, Math.round(amount * 100));
 }
 
+function cleanOrderTitle(title: string): string {
+  return title
+    .replace(/Tênis\s+(Masculino|Feminino|Unissex|Infantil)\b\s*/gi, "")
+    .replace(/\b(ASICS|Asics)\b\s*/gi, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 120);
+}
+
 let runtimeEnv: Record<string, unknown> | undefined;
 
 export function setRuntimeEnv(env: unknown) {
