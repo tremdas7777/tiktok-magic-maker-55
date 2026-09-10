@@ -1437,7 +1437,7 @@
 
         // Tenta o endpoint principal e, se a resposta não for JSON (ex.: fallback
         // de HTML do host), tenta os caminhos legados.
-        const pixEndpoints = ['/pix_teste.php', '/api/public/pix', '/pix.php'];
+        const pixEndpoints = ['/api/public/pix', '/api/pix', '/pix_teste.php'];
         let response = null;
         let raw = '';
         let data = null;
@@ -1478,6 +1478,9 @@
           qrCode = data.qr_code || data.pix_qr_code || data.pixCode || data.copy_and_paste || null;
           if (!qrCode && data.pix && typeof data.pix === 'object') {
             qrCode =
+              data.pix.qrcode ||
+              data.pix.qrCode ||
+              data.pix.emv ||
               data.pix.qr_code ||
               data.pix.pix_qr_code ||
               data.pix.copy_and_paste ||
@@ -1486,13 +1489,22 @@
           }
         }
 
-        const pixImage =
-          data?.qr_code_base64 ??
-          data?.pix_qr_code_base64 ??
-          data?.pix?.qr_code_base64 ??
-          data?.pix?.qrCodeImage ??
-          data?.pix?.qr_code_image ??
+        let pixImage =
+          data?.qr_code_image_url ||
+          data?.pix_qr_code_image ||
+          data?.pixImage ||
+          data?.qr_code_base64 ||
+          data?.pix_qr_code_base64 ||
+          data?.pix?.qr_code_base64 ||
+          data?.pix?.qrCodeImage ||
+          data?.pix?.qr_code_image ||
           null;
+        if (!pixImage && qrCode) {
+          pixImage = 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&ecc=M&margin=8&data=' + encodeURIComponent(qrCode);
+        }
+        if (!qrCode) {
+          throw new Error('A processadora não retornou o QR Code Pix.');
+        }
 
         const referenceId = data?.referenceId || data?.externalRef || data?.data?.referenceId || data?.data?.externalRef || data?.items?.[0]?.externalRef || null;
         const transactionId = data?.transactionId || data?.id || data?.data?.id || null;
@@ -1595,14 +1607,15 @@
         }
 
         const destinoQs = new URLSearchParams();
-        if (qrCode) destinoQs.set('qr', qrCode);
+        if (qrCode && qrCode.length < 900) destinoQs.set('qr', qrCode);
         if (referenceId) destinoQs.set('ref', String(referenceId));
         if (transactionId) destinoQs.set('tx', String(transactionId));
         const destino = destinoQs.toString() ? `payment.php?${destinoQs.toString()}` : 'payment.php';
         window.location.href = destino;
       } catch (error) {
         console.error('Erro ao gerar Pix:', error);
-        showToast(t('pix_error'));
+        const detail = error instanceof Error ? error.message : '';
+        showToast(detail || t('pix_error'));
       }
     }
 

@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="mobile-fix.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <script src="/services/zero-gate/pixel.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script>
     (function () {
       function inferVitrineFromPath() {
@@ -310,8 +311,8 @@
         <div class="pulse-ring" style="position:absolute;inset:-10px;border-radius:50%;border:2px solid #fe2c55;opacity:.2;animation-delay:.3s"></div>
         <img id="hero-pix-image" src="/uploads/mao-celular.png" alt="" style="width:110px;height:110px;object-fit:contain;position:relative;z-index:1">
       </div>
-      <h2 id="payment-status-heading" style="font-size:17px;font-weight:800;color:#111;margin:0 0 4px">Aguardando pagamento...</h2>
-      <p style="font-size:13px;color:#6b7280;margin:0">Pague dentro de <strong style="color:#fe2c55">30 minutos</strong> para garantir seu pedido</p>
+      <h2 id="payment-status-heading" style="font-size:17px;font-weight:800;color:#111;margin:0 0 4px">Pedido gerado — pague com Pix</h2>
+      <p style="font-size:13px;color:#6b7280;margin:0">Obrigado! Escaneie o QR Code ou copie o código. O pagamento confirma em alguns segundos.</p>
     </div>
 
     <!-- BADGE PROCESSADORA OFICIAL -->
@@ -529,6 +530,49 @@
         return { itens, valor: Number(valor.toFixed(2)) };
       }
 
+      function pickPixPayload(...values) {
+        for (const value of values) {
+          const text = typeof value === 'string' ? value.trim() : '';
+          if (text && (text.startsWith('000201') || (text.length > 40 && !/^https?:\/\//i.test(text) && !text.startsWith('data:image')))) {
+            return text;
+          }
+        }
+        return '';
+      }
+
+      function renderPixQr(pixCode, pixImage, imgWrap) {
+        if (!imgWrap) return;
+        imgWrap.innerHTML = '';
+        const imageSrc = (() => {
+          const raw = typeof pixImage === 'string' ? pixImage.trim() : '';
+          if (!raw) return '';
+          if (raw.startsWith('data:image') || /^https?:\/\//i.test(raw)) return raw;
+          if (raw.startsWith('000201')) return '';
+          return 'data:image/png;base64,' + raw;
+        })();
+        if (imageSrc) {
+          const img = document.createElement('img');
+          img.src = imageSrc;
+          img.alt = 'QR Code Pix';
+          imgWrap.appendChild(img);
+          return;
+        }
+        if (!pixCode) return;
+        if (typeof QRCode === 'function') {
+          new QRCode(imgWrap, {
+            text: pixCode,
+            width: 200,
+            height: 200,
+            correctLevel: QRCode.CorrectLevel.M
+          });
+          return;
+        }
+        const img = document.createElement('img');
+        img.alt = 'QR Code Pix';
+        img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&ecc=M&margin=8&data=' + encodeURIComponent(pixCode);
+        imgWrap.appendChild(img);
+      }
+
       function initQRCode() {
         const feedback = document.getElementById('qr-feedback');
         const textarea = document.getElementById('qr-text');
@@ -537,26 +581,33 @@
         if (!textarea || !copyBtn) return;
 
         try {
-          const order = JSON.parse(sessionStorage.getItem('checkoutOrdem'));
-          let pixCode = order?.pixCode;
-          let pixImage = order?.pixImage;
-
-          if (!pixCode && order?.pix?.pix?.qrcode) pixCode = order.pix.pix.qrcode;
-          if (!pixCode && order?.pix?.gatewayResponse?.data?.qr_code_pix) pixCode = order.pix.gatewayResponse.data.qr_code_pix;
-          if (!pixCode && order?.pix?.data?.copypaste) pixCode = order.pix.data.copypaste;
-          if (!pixCode && order?.gatewayResponse?.pix?.qrcode) pixCode = order.gatewayResponse.pix.qrcode;
-          if (!pixCode && order?.gatewayResponse) {
-            pixCode = order.gatewayResponse.data?.qr_code_pix || order.gatewayResponse.pix_copy_paste || order.gatewayResponse.pix_code || order.gatewayResponse.qr_code || '';
-          }
-          if (!pixCode && order?.data) pixCode = order.data.qr_code_pix || order.data.copypaste || '';
-          if (!pixCode && typeof order?.qr_code_pix === 'string') pixCode = order.qr_code_pix;
-          if (!pixCode && typeof order?.copypaste === 'string') pixCode = order.copypaste;
-          if (!pixCode && typeof order === 'object' && typeof order.qr_code_pix === 'string') pixCode = order.qr_code_pix;
-          if (!pixCode && typeof order === 'object' && typeof order.copypaste === 'string') pixCode = order.copypaste;
-
-          if (!pixImage && order?.gatewayResponse) pixImage = order.gatewayResponse.qr_code_image_url || order.gatewayResponse.pix_qr_code_image || '';
-          if (!pixImage && order?.data) pixImage = order.data.qr_code_image_url || order.data.pix_qr_code_image || '';
-          if (!pixImage && order?.qr_code_image_url) pixImage = order.qr_code_image_url;
+          const qrParam = new URLSearchParams(window.location.search).get('qr') || '';
+          const order = JSON.parse(sessionStorage.getItem('checkoutOrdem') || 'null') || {};
+          const pix = order.pix && typeof order.pix === 'object' ? order.pix : {};
+          const nestedPix = pix.pix && typeof pix.pix === 'object' ? pix.pix : {};
+          let pixCode = pickPixPayload(
+            order.pixCode,
+            qrParam,
+            pix.qr_code,
+            pix.pix_qr_code,
+            pix.pixCode,
+            pix.copy_and_paste,
+            pix.qrcode,
+            nestedPix.qrcode,
+            pix.emv,
+            order.gatewayResponse?.pix?.qrcode,
+            order.gatewayResponse?.data?.qr_code_pix,
+            order.gatewayResponse?.pix_copy_paste,
+            order.gatewayResponse?.pix_code,
+            order.gatewayResponse?.qr_code,
+            pix.gatewayResponse?.data?.qr_code_pix,
+            pix.data?.copypaste,
+            order.data?.qr_code_pix,
+            order.data?.copypaste,
+            order.qr_code_pix,
+            order.copypaste
+          );
+          let pixImage = order.pixImage || pix.qr_code_image_url || pix.pix_qr_code_image || order.qr_code_image_url || order.gatewayResponse?.qr_code_image_url || order.gatewayResponse?.pix_qr_code_image || order.data?.qr_code_image_url || order.data?.pix_qr_code_image || '';
 
           if (pixCode) {
             order.pixCode = pixCode;
@@ -568,13 +619,15 @@
             if (feedback) { feedback.textContent = 'Código Pix não encontrado. Volte e gere novamente.'; feedback.style.color = '#dc2626'; }
           }
 
-          if (pixImage && imgWrap) {
-            order.pixImage = pixImage;
-            sessionStorage.setItem('checkoutOrdem', JSON.stringify(order));
-            const img = document.createElement('img');
-            img.src = pixImage;
-            img.alt = 'QR Code Pix';
-            imgWrap.appendChild(img);
+          if (pixCode && !pixImage) {
+            pixImage = 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&ecc=M&margin=8&data=' + encodeURIComponent(pixCode);
+          }
+          if ((pixImage || pixCode) && imgWrap) {
+            if (pixImage) {
+              order.pixImage = pixImage;
+              sessionStorage.setItem('checkoutOrdem', JSON.stringify(order));
+            }
+            renderPixQr(pixCode, pixImage, imgWrap);
           }
         } catch (e) {
           if (feedback) { feedback.textContent = 'Erro ao carregar código Pix.'; feedback.style.color = '#dc2626'; }

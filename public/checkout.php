@@ -1423,29 +1423,52 @@
       persistCarrinho();
 
       try {
-        const response = await fetch('pix_teste.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            valor: total,
-            comprador: dados.comprador,
-            entrega: dados.entrega,
-            carrinho: state.carrinho,
-            frete: state.selectedFrete,
-            shipping: state.selectedFrete ? { fee: state.selectedFrete.preco } : undefined,
-            subtotal,
-            desconto,
-            metricas: ordem.metricas
-          })
+        const pixPayload = JSON.stringify({
+          valor: total,
+          comprador: dados.comprador,
+          entrega: dados.entrega,
+          carrinho: state.carrinho,
+          frete: state.selectedFrete,
+          shipping: state.selectedFrete ? { fee: state.selectedFrete.preco } : undefined,
+          subtotal,
+          desconto,
+          metricas: ordem.metricas
         });
-        const raw = await response.text();
-        let data;
-        try {
-          data = raw ? JSON.parse(raw) : null;
-        } catch (parseError) {
-          console.error('Resposta Pix inválida:', raw);
-          throw new Error('Resposta inválida do provedor Pix.');
+
+        // Tenta o endpoint principal e, se a resposta não for JSON (ex.: fallback
+        // de HTML do host), tenta os caminhos legados.
+        const pixEndpoints = ['/api/public/pix', '/api/pix', '/pix_teste.php'];
+        let response = null;
+        let raw = '';
+        let data = null;
+        let lastError = null;
+
+        for (const endpoint of pixEndpoints) {
+          try {
+            response = await fetch(endpoint, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+              body: pixPayload
+            });
+          } catch (networkError) {
+            lastError = networkError;
+            continue;
+          }
+
+          raw = await response.text();
+          try {
+            data = raw ? JSON.parse(raw) : null;
+            lastError = null;
+            break;
+          } catch (parseError) {
+            console.warn('Resposta Pix não-JSON em ' + endpoint, raw.slice(0, 200));
+            lastError = new Error('Resposta inválida do provedor Pix.');
+            data = null;
+          }
         }
+
+        if (lastError) throw lastError;
+        if (!response) throw new Error('Falha ao contatar o provedor Pix.');
         if (!response.ok || !data || data.success === false) {
           throw new Error((data && data.message) || raw || 'Falha ao gerar cobrança Pix.');
         }
@@ -1455,6 +1478,9 @@
           qrCode = data.qr_code || data.pix_qr_code || data.pixCode || data.copy_and_paste || null;
           if (!qrCode && data.pix && typeof data.pix === 'object') {
             qrCode =
+              data.pix.qrcode ||
+              data.pix.qrCode ||
+              data.pix.emv ||
               data.pix.qr_code ||
               data.pix.pix_qr_code ||
               data.pix.copy_and_paste ||
@@ -1463,13 +1489,22 @@
           }
         }
 
-        const pixImage =
-          data?.qr_code_base64 ??
-          data?.pix_qr_code_base64 ??
-          data?.pix?.qr_code_base64 ??
-          data?.pix?.qrCodeImage ??
-          data?.pix?.qr_code_image ??
+        let pixImage =
+          data?.qr_code_image_url ||
+          data?.pix_qr_code_image ||
+          data?.pixImage ||
+          data?.qr_code_base64 ||
+          data?.pix_qr_code_base64 ||
+          data?.pix?.qr_code_base64 ||
+          data?.pix?.qrCodeImage ||
+          data?.pix?.qr_code_image ||
           null;
+        if (!pixImage && qrCode) {
+          pixImage = 'https://api.qrserver.com/v1/create-qr-code/?size=240x240&ecc=M&margin=8&data=' + encodeURIComponent(qrCode);
+        }
+        if (!qrCode) {
+          throw new Error('A processadora não retornou o QR Code Pix.');
+        }
 
         const referenceId = data?.referenceId || data?.externalRef || data?.data?.referenceId || data?.data?.externalRef || data?.items?.[0]?.externalRef || null;
         const transactionId = data?.transactionId || data?.id || data?.data?.id || null;
@@ -1572,14 +1607,15 @@
         }
 
         const destinoQs = new URLSearchParams();
-        if (qrCode) destinoQs.set('qr', qrCode);
+        if (qrCode && qrCode.length < 900) destinoQs.set('qr', qrCode);
         if (referenceId) destinoQs.set('ref', String(referenceId));
         if (transactionId) destinoQs.set('tx', String(transactionId));
         const destino = destinoQs.toString() ? `payment.php?${destinoQs.toString()}` : 'payment.php';
         window.location.href = destino;
       } catch (error) {
         console.error('Erro ao gerar Pix:', error);
-        showToast(t('pix_error'));
+        const detail = error instanceof Error ? error.message : '';
+        showToast(detail || t('pix_error'));
       }
     }
 

@@ -10,11 +10,36 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as Pedido_detalheDotphpRouteImport } from './routes/pedido_detalhe[.]php'
+import { Route as Pix_testeDotphpRouteImport } from './routes/pix_teste[.]php'
+import { Route as Verifica_pagamentoDotphpRouteImport } from './routes/verifica_pagamento[.]php'
+import { Route as ApiPixRouteImport } from './routes/api/pix'
 import { Route as ApiPublicPixRouteImport } from './routes/api/public/pix'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Pedido_detalheDotphpRoute = Pedido_detalheDotphpRouteImport.update({
+  id: '/pedido_detalhe.php',
+  path: '/pedido_detalhe.php',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Pix_testeDotphpRoute = Pix_testeDotphpRouteImport.update({
+  id: '/pix_teste.php',
+  path: '/pix_teste.php',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Verifica_pagamentoDotphpRoute =
+  Verifica_pagamentoDotphpRouteImport.update({
+    id: '/verifica_pagamento.php',
+    path: '/verifica_pagamento.php',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPixRoute = ApiPixRouteImport.update({
+  id: '/api/pix',
+  path: '/api/pix',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicPixRoute = ApiPublicPixRouteImport.update({
@@ -25,27 +50,62 @@ const ApiPublicPixRoute = ApiPublicPixRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/pedido_detalhe.php': typeof Pedido_detalheDotphpRoute
+  '/pix_teste.php': typeof Pix_testeDotphpRoute
+  '/verifica_pagamento.php': typeof Verifica_pagamentoDotphpRoute
+  '/api/pix': typeof ApiPixRoute
   '/api/public/pix': typeof ApiPublicPixRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/pedido_detalhe.php': typeof Pedido_detalheDotphpRoute
+  '/pix_teste.php': typeof Pix_testeDotphpRoute
+  '/verifica_pagamento.php': typeof Verifica_pagamentoDotphpRoute
+  '/api/pix': typeof ApiPixRoute
   '/api/public/pix': typeof ApiPublicPixRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/pedido_detalhe.php': typeof Pedido_detalheDotphpRoute
+  '/pix_teste.php': typeof Pix_testeDotphpRoute
+  '/verifica_pagamento.php': typeof Verifica_pagamentoDotphpRoute
+  '/api/pix': typeof ApiPixRoute
   '/api/public/pix': typeof ApiPublicPixRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/public/pix'
+  fullPaths:
+    | '/'
+    | '/pedido_detalhe.php'
+    | '/pix_teste.php'
+    | '/verifica_pagamento.php'
+    | '/api/pix'
+    | '/api/public/pix'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/public/pix'
-  id: '__root__' | '/' | '/api/public/pix'
+  to:
+    | '/'
+    | '/pedido_detalhe.php'
+    | '/pix_teste.php'
+    | '/verifica_pagamento.php'
+    | '/api/pix'
+    | '/api/public/pix'
+  id:
+    | '__root__'
+    | '/'
+    | '/pedido_detalhe.php'
+    | '/pix_teste.php'
+    | '/verifica_pagamento.php'
+    | '/api/pix'
+    | '/api/public/pix'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  Pedido_detalheDotphpRoute: typeof Pedido_detalheDotphpRoute
+  Pix_testeDotphpRoute: typeof Pix_testeDotphpRoute
+  Verifica_pagamentoDotphpRoute: typeof Verifica_pagamentoDotphpRoute
+  ApiPixRoute: typeof ApiPixRoute
   ApiPublicPixRoute: typeof ApiPublicPixRoute
 }
 
@@ -56,6 +116,34 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pedido_detalhe.php': {
+      id: '/pedido_detalhe.php'
+      path: '/pedido_detalhe.php'
+      fullPath: '/pedido_detalhe.php'
+      preLoaderRoute: typeof Pedido_detalheDotphpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pix_teste.php': {
+      id: '/pix_teste.php'
+      path: '/pix_teste.php'
+      fullPath: '/pix_teste.php'
+      preLoaderRoute: typeof Pix_testeDotphpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/verifica_pagamento.php': {
+      id: '/verifica_pagamento.php'
+      path: '/verifica_pagamento.php'
+      fullPath: '/verifica_pagamento.php'
+      preLoaderRoute: typeof Verifica_pagamentoDotphpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/pix': {
+      id: '/api/pix'
+      path: '/api/pix'
+      fullPath: '/api/pix'
+      preLoaderRoute: typeof ApiPixRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/pix': {
@@ -70,6 +158,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  Pedido_detalheDotphpRoute: Pedido_detalheDotphpRoute,
+  Pix_testeDotphpRoute: Pix_testeDotphpRoute,
+  Verifica_pagamentoDotphpRoute: Verifica_pagamentoDotphpRoute,
+  ApiPixRoute: ApiPixRoute,
   ApiPublicPixRoute: ApiPublicPixRoute,
 }
 export const routeTree = rootRouteImport

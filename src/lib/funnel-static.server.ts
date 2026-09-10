@@ -1,6 +1,11 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { handlePixRequest, PIX_PATHS } from "./legacy-pix.server";
+import {
+  handlePixOrderRequest,
+  handlePixRequest,
+  handlePixStatusRequest,
+  PIX_PATHS,
+} from "./legacy-pix.server";
 
 const PAGE_FILES: Record<string, string> = {
   "/": "index.html",
@@ -24,10 +29,25 @@ function pageCandidates(fileName: string): string[] {
 
 export async function handleFunnelRequest(request: Request): Promise<Response | null> {
   const url = new URL(request.url);
-  const pathname = url.pathname;
+  const pathname = url.pathname.replace(/\/+$/, "") || "/";
 
   if (request.method === "POST" && PIX_PATHS.has(pathname)) {
     return handlePixRequest(request);
+  }
+
+  if (request.method === "GET" && (pathname === "/api/pix" || pathname === "/pix_teste.php")) {
+    return new Response(JSON.stringify({ success: false, message: "Use POST para gerar o Pix." }), {
+      status: 405,
+      headers: { "Content-Type": "application/json; charset=utf-8", Allow: "POST" },
+    });
+  }
+
+  if (request.method === "GET" && pathname === "/verifica_pagamento.php") {
+    return handlePixStatusRequest(request);
+  }
+
+  if (request.method === "GET" && pathname === "/pedido_detalhe.php") {
+    return handlePixOrderRequest(request);
   }
 
   if (request.method === "POST" && pathname === "/webhooks/legacy") {
