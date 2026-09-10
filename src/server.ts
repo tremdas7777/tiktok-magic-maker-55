@@ -48,7 +48,8 @@ export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     setRuntimeEnv(env);
     try {
-      const cf = (await import("cloudflare:workers").catch(() => null)) as
+      const cfSpecifier = "cloudflare:workers";
+      const cf = (await import(/* @vite-ignore */ cfSpecifier).catch(() => null)) as
         | { env?: unknown }
         | null;
       if (cf?.env) setRuntimeEnv(cf.env);
