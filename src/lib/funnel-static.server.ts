@@ -7,18 +7,18 @@ import {
 } from "./legacy-pix.server";
 
 const PAGES: Record<string, string> = {
-  "/": homeHtml,
-  "/index.php": homeHtml,
-  "/index.html": homeHtml,
-  "/produto.php": produtoHtml,
-  "/produto.html": produtoHtml,
-  "/cart.php": cartHtml,
-  "/cart.html": cartHtml,
-  "/checkout.php": checkoutHtml,
-  "/checkout.html": checkoutHtml,
-  "/payment.php": paymentHtml,
-  "/payment.html": paymentHtml,
-  "/politica-de-privacidade.php": policyHtml,
+  "/": FUNNEL_FILES["index.html"],
+  "/index.php": FUNNEL_FILES["index.html"],
+  "/index.html": FUNNEL_FILES["index.html"],
+  "/produto.php": FUNNEL_FILES["produto.html"],
+  "/produto.html": FUNNEL_FILES["produto.html"],
+  "/cart.php": FUNNEL_FILES["cart.html"],
+  "/cart.html": FUNNEL_FILES["cart.html"],
+  "/checkout.php": FUNNEL_FILES["checkout.html"],
+  "/checkout.html": FUNNEL_FILES["checkout.html"],
+  "/payment.php": FUNNEL_FILES["payment.php"],
+  "/payment.html": FUNNEL_FILES["payment.php"],
+  "/politica-de-privacidade.php": FUNNEL_FILES["politica-de-privacidade.php"],
 };
 
 export async function handleFunnelRequest(request: Request): Promise<Response | null> {
