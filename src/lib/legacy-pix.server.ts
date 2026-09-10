@@ -151,7 +151,7 @@ function buildPayinPayload(order: JsonRecord, payerIp: string, cfg: LegacyConfig
     const unit = toCents(item.preco ?? item.price ?? 0);
     if (unit <= 0) continue;
     items.push({
-      title: String(item.titulo ?? item.title ?? "Produto").slice(0, 120),
+      title: cleanOrderTitle(String(item.titulo ?? item.title ?? "Produto")),
       quantity: qty,
       unitPrice: unit,
     });
@@ -160,7 +160,7 @@ function buildPayinPayload(order: JsonRecord, payerIp: string, cfg: LegacyConfig
   const freteCents = toCents(frete.preco ?? frete.price ?? 0);
   if (freteCents > 0) {
     items.push({
-      title: String(frete.titulo ?? "Frete"),
+      title: cleanOrderTitle(String(frete.titulo ?? "Frete")),
       quantity: 1,
       unitPrice: freteCents,
     });
