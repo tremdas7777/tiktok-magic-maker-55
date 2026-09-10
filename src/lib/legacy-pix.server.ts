@@ -1,4 +1,6 @@
-type JsonRecord = Record<string, unknown>;
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// Loose JSON shape: gateway payloads are dynamic, so dotted access is allowed.
+type JsonRecord = any;
 
 type LegacyConfig = {
   public_key: string;
