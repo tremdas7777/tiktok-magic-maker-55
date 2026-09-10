@@ -11,11 +11,13 @@ export const Route = createFileRoute("/api/public/pix")({
     handlers: {
       GET: async () => Response.json({ ok: true, route: "pix" }),
       POST: async ({ request }) => {
+        const marker = Response.json({ ok: true, step: "entered" });
         try {
-          return await handlePixRequest(request);
-        } catch (error) {
-          const message = error instanceof Error ? error.message : "Erro inesperado.";
-          return Response.json({ success: false, message }, { status: 500 });
+          const body = await request.text();
+          void body;
+          return Response.json({ ok: true, step: "body-read" });
+        } catch {
+          return marker;
         }
       },
     },
