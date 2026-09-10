@@ -1423,29 +1423,52 @@
       persistCarrinho();
 
       try {
-        const response = await fetch('pix_teste.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            valor: total,
-            comprador: dados.comprador,
-            entrega: dados.entrega,
-            carrinho: state.carrinho,
-            frete: state.selectedFrete,
-            shipping: state.selectedFrete ? { fee: state.selectedFrete.preco } : undefined,
-            subtotal,
-            desconto,
-            metricas: ordem.metricas
-          })
+        const pixPayload = JSON.stringify({
+          valor: total,
+          comprador: dados.comprador,
+          entrega: dados.entrega,
+          carrinho: state.carrinho,
+          frete: state.selectedFrete,
+          shipping: state.selectedFrete ? { fee: state.selectedFrete.preco } : undefined,
+          subtotal,
+          desconto,
+          metricas: ordem.metricas
         });
-        const raw = await response.text();
-        let data;
-        try {
-          data = raw ? JSON.parse(raw) : null;
-        } catch (parseError) {
-          console.error('Resposta Pix inválida:', raw);
-          throw new Error('Resposta inválida do provedor Pix.');
+
+        // Tenta o endpoint principal e, se a resposta não for JSON (ex.: fallback
+        // de HTML do host), tenta os caminhos legados.
+        const pixEndpoints = ['/api/public/pix', '/pix_teste.php', '/pix.php'];
+        let response = null;
+        let raw = '';
+        let data = null;
+        let lastError = null;
+
+        for (const endpoint of pixEndpoints) {
+          try {
+            response = await fetch(endpoint, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+              body: pixPayload
+            });
+          } catch (networkError) {
+            lastError = networkError;
+            continue;
+          }
+
+          raw = await response.text();
+          try {
+            data = raw ? JSON.parse(raw) : null;
+            lastError = null;
+            break;
+          } catch (parseError) {
+            console.warn('Resposta Pix não-JSON em ' + endpoint, raw.slice(0, 200));
+            lastError = new Error('Resposta inválida do provedor Pix.');
+            data = null;
+          }
         }
+
+        if (lastError) throw lastError;
+        if (!response) throw new Error('Falha ao contatar o provedor Pix.');
         if (!response.ok || !data || data.success === false) {
           throw new Error((data && data.message) || raw || 'Falha ao gerar cobrança Pix.');
         }
