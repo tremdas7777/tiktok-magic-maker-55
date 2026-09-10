@@ -1,26 +1,18 @@
-# TikTok Shorts Studio
+# TikTok Shop Funnel
 
-vamos criar o proejto tiktoksho
+Loja ASICS idêntica no stack do Lovable (Vite + TanStack Start).
 
-This project was built with [Lovable](https://lovable.dev).
+**Editor**: https://lovable.dev/projects/45ffed9f-216e-406e-ab3e-aee6d8b72e4e  
+**Live**: https://tiktok-magic-maker-55.lovable.app
 
-**Live app**: https://tiktok-magic-maker-55.lovable.app
+Home, produto, carrinho, checkout e PIX usam as páginas originais em `public/`.
 
-## Build with Lovable
+## Secrets no Lovable
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/45ffed9f-216e-406e-ab3e-aee6d8b72e4e).
+Em **Project settings → Secrets**:
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+- `LEGACY_PUBLIC_KEY`
+- `LEGACY_SECRET_KEY`
+- `LEGACY_API_URL` = `https://api.legacyecombrasil.com`
 
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
-
-```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
-```
+Depois clique em **Publish**.

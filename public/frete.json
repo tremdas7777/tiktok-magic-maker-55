@@ -1,0 +1,5 @@
+[
+  {"titulo": "JadLog", "descricao": "Receba em até 2 dias úteis", "preco": 25.50, "dias": 2},
+  {"titulo": "Sedex-Express", "descricao": "Receba em até 4 dias úteis", "preco": 17.5, "dias": 4},
+  {"titulo": "Correio", "descricao": "Receba em até  7 dias úteis", "preco": 0.0, "dias": 7}
+]

@@ -1,0 +1,68 @@
+/* Mobile parity fixes — TikTok Shop funnel */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0 auto;
+  max-width: 480px;
+  min-height: 100vh;
+  background: #fff;
+  -webkit-font-smoothing: antialiased;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.fixed-header,
+.fixed-menu,
+#searchBar {
+  max-width: 480px;
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%);
+  width: 100%;
+}
+
+#modalCarrinhoContent,
+#meuModal > div,
+#modalOficialContent,
+#modalCartinha > div {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#buy-positions,
+.bottom-nav {
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%);
+  width: 100%;
+}
+
+#sticky-tabs.is-fixed {
+  max-width: 480px;
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%);
+  width: 100%;
+}
+
+#heroWrap {
+  opacity: 1 !important;
+}
+
+#loja-nome:empty::before {
+  content: 'ASICS';
+}
+
+@media (min-width: 481px) {
+  html {
+    background: #f3f4f6;
+  }
+  body {
+    box-shadow: 0 0 24px rgba(0, 0, 0, 0.08);
+  }
+}

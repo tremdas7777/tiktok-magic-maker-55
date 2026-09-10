@@ -1,0 +1,120 @@
+{
+    "nome": "ASICS",
+    "descricao": "",
+    "slug": "asics",
+    "modelo_landing": "modelo4",
+    "logo": "/uploads/asics-logo.jpg",
+    "logo_updated_at": 1789019000,
+    "atualizado_em": "2026-09-10T01:35:00-03:00",
+    "categorias": [
+        {
+            "id": "masculino",
+            "nome": "Masculino",
+            "produto_ids": [
+                20001,
+                20003,
+                20005,
+                20008,
+                20010,
+                20011,
+                20014,
+                20015,
+                20016,
+                20017,
+                20019,
+                20021,
+                20024,
+                20032,
+                20035,
+                20036
+            ]
+        },
+        {
+            "id": "feminino",
+            "nome": "Feminino",
+            "produto_ids": [
+                20002,
+                20006,
+                20007,
+                20009,
+                20012,
+                20013,
+                20018,
+                20020,
+                20022,
+                20023,
+                20026,
+                20027,
+                20028,
+                20029,
+                20030
+            ]
+        },
+        {
+            "id": "unisex",
+            "nome": "Unisex",
+            "produto_ids": [
+                20004,
+                20025,
+                20031,
+                20033,
+                20034
+            ]
+        }
+    ],
+    "cartinha_titulo_topo": "TÊNIS EM MOVIMENTO",
+    "cartinha_desconto_texto": "70% OFF",
+    "cartinha_subtitulo": "no seu pedido!",
+    "cartinha_linha1": "Você pode começar o ano",
+    "cartinha_linha2": "correndo com estilo.",
+    "cartinha_linha3": "Aproveita: tênis ASICS com 70% OFF.",
+    "cartinha_linha4": "",
+    "cartinha_timer_prefixo": "Termina em",
+    "cartinha_botao_texto": "Resgatar agora",
+    "badge": "",
+    "seguidores": null,
+    "reputacao": null,
+    "vendas": "",
+    "avaliacoes": null,
+    "perfeito_pct": null,
+    "lang": "pt",
+    "banners": [
+        {
+            "imagem": "",
+            "eyebrow": "Bem-vindo à nossa loja",
+            "titulo": "até 80% OFF",
+            "subtitulo": "nos melhores produtos",
+            "badge": "OFERTA",
+            "emoji": "🏷️",
+            "cor": "#3483FA,#1A5EC2",
+            "filtro": "ofertas"
+        },
+        {
+            "imagem": "",
+            "eyebrow": "Compra 100% segura",
+            "titulo": "Frete Grátis",
+            "subtitulo": "em milhares de produtos",
+            "badge": "ENVIO",
+            "emoji": "🚚",
+            "cor": "#00A650,#007A3B",
+            "filtro": ""
+        },
+        {
+            "imagem": "",
+            "eyebrow": "Pagamento parcelado",
+            "titulo": "12x sem juros",
+            "subtitulo": "no cartão Mercado Pago",
+            "badge": "CARTÃO",
+            "emoji": "💳",
+            "cor": "#FF6A00,#C94B00",
+            "filtro": ""
+        }
+    ],
+    "lojas": [],
+    "seguro_ativo": false,
+    "exibir_tag_oficial": true,
+    "exibir_tag_torcer": true,
+    "exibir_tag_estrela": true,
+    "seguro_garantia_preco": 19.9,
+    "seguro_roubo_preco": 29.9
+}
