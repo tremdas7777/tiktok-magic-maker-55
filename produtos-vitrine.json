@@ -1,0 +1,506 @@
+[
+  {
+    "id": 20001,
+    "titulo": "Tênis Masculino Asics Novablast 5",
+    "preco": "300.00",
+    "preco_comparacao": "599.99",
+    "desconto": "50.00",
+    "notas": "4.7",
+    "quantidade_produtos": 1001,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/9923183WA2.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20002,
+    "titulo": "Tênis Feminino Asics Novablast 5",
+    "preco": "300.00",
+    "preco_comparacao": "599.99",
+    "desconto": "50.00",
+    "notas": "4.9",
+    "quantidade_produtos": 1002,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/992317FPA2.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20003,
+    "titulo": "Tênis Masculino ASICS Gel-Nimbus 28",
+    "preco": "249.97",
+    "preco_comparacao": "999.90",
+    "desconto": "75.00",
+    "notas": "4.5",
+    "quantidade_produtos": 1003,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/9973DG32A2.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20004,
+    "titulo": "Tênis Unissex Asics Superblast 3",
+    "preco": "425.00",
+    "preco_comparacao": "1699.99",
+    "desconto": "75.00",
+    "notas": "4.3",
+    "quantidade_produtos": 1004,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/9973E065A2.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20005,
+    "titulo": "Tênis ASICS Novablast 5 Masculino",
+    "preco": "249.75",
+    "preco_comparacao": "999.00",
+    "desconto": "75.00",
+    "notas": "4.8",
+    "quantidade_produtos": 1005,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/M178TS29A1.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20006,
+    "titulo": "Tênis Feminino Asics Novablast 5",
+    "preco": "300.00",
+    "preco_comparacao": "599.99",
+    "desconto": "50.00",
+    "notas": "4.9",
+    "quantidade_produtos": 1006,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/992317BKA2.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20007,
+    "titulo": "Tênis ASICS Gel-Nagoya ST Feminino",
+    "preco": "177.62",
+    "preco_comparacao": "355.25",
+    "desconto": "50.00",
+    "notas": "4.6",
+    "quantidade_produtos": 1007,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/99005252A2.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20008,
+    "titulo": "Tênis Masculino ASICS Raiden 4",
+    "preco": "133.33",
+    "preco_comparacao": "266.66",
+    "desconto": "50.00",
+    "notas": "4.5",
+    "quantidade_produtos": 1008,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/99262131A2.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20009,
+    "titulo": "Tênis ASICS Gel-Nagoya ST Feminino",
+    "preco": "180.00",
+    "preco_comparacao": "359.99",
+    "desconto": "50.00",
+    "notas": "4.6",
+    "quantidade_produtos": 1009,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/99005237A2.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20010,
+    "titulo": "Tênis Masculino Asics Novablast 5",
+    "preco": "300.00",
+    "preco_comparacao": "599.99",
+    "desconto": "50.00",
+    "notas": "4.7",
+    "quantidade_produtos": 1010,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/9923183XA2.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20011,
+    "titulo": "Tênis Masculino ASICS Gel-Nagoya 8",
+    "preco": "166.66",
+    "preco_comparacao": "333.32",
+    "desconto": "50.00",
+    "notas": "4.7",
+    "quantidade_produtos": 1011,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/99678631A2.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20012,
+    "titulo": "Tênis ASICS Gel-Nagoya ST Feminino",
+    "preco": "177.62",
+    "preco_comparacao": "355.25",
+    "desconto": "50.00",
+    "notas": "4.6",
+    "quantidade_produtos": 1012,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/990052FPA2.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20013,
+    "titulo": "Tênis Feminino ASICS Gel-Nagoya 8",
+    "preco": "166.66",
+    "preco_comparacao": "333.32",
+    "desconto": "50.00",
+    "notas": "4.2",
+    "quantidade_produtos": 1013,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/99679115A2.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20014,
+    "titulo": "Tênis Masculino ASICS Novablast 5 Platium",
+    "preco": "333.33",
+    "preco_comparacao": "666.66",
+    "desconto": "50.00",
+    "notas": "4.8",
+    "quantidade_produtos": 1014,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/9973DS3JA13.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20015,
+    "titulo": "Tênis Masculino Asics Gel-Excite 11",
+    "preco": "189.47",
+    "preco_comparacao": "378.94",
+    "desconto": "50.00",
+    "notas": "4.2",
+    "quantidade_produtos": 1015,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/99685732A2.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20016,
+    "titulo": "Tênis ASICS Gel-Nagoya ST Masculino",
+    "preco": "161.04",
+    "preco_comparacao": "322.09",
+    "desconto": "50.00",
+    "notas": "4.6",
+    "quantidade_produtos": 1016,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/990051H3A2.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20017,
+    "titulo": "Tênis Masculino ASICS Gel-Nimbus 27 Luxe",
+    "preco": "224.97",
+    "preco_comparacao": "899.90",
+    "desconto": "75.00",
+    "notas": "4.5",
+    "quantidade_produtos": 1017,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/99678332A2.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20018,
+    "titulo": "Tênis Feminino Asics Novablast 5",
+    "preco": "300.00",
+    "preco_comparacao": "599.99",
+    "desconto": "50.00",
+    "notas": "4.9",
+    "quantidade_produtos": 1018,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/9923172RA2.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20019,
+    "titulo": "Tênis Masculino ASICS Gel-Nimbus 28",
+    "preco": "250.00",
+    "preco_comparacao": "999.99",
+    "desconto": "75.00",
+    "notas": "4.5",
+    "quantidade_produtos": 1019,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/9973DG29A9.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20020,
+    "titulo": "Tênis Feminino Asics Gel-Excite 11",
+    "preco": "189.47",
+    "preco_comparacao": "378.94",
+    "desconto": "50.00",
+    "notas": "4.7",
+    "quantidade_produtos": 1020,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/996858FPA9.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20021,
+    "titulo": "Tênis Masculino Asics Novablast 5",
+    "preco": "300.00",
+    "preco_comparacao": "599.99",
+    "desconto": "50.00",
+    "notas": "4.8",
+    "quantidade_produtos": 1021,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/M18LJC9SA1.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20022,
+    "titulo": "Tênis Feminino ASICS Raiden 5",
+    "preco": "155.55",
+    "preco_comparacao": "311.10",
+    "desconto": "50.00",
+    "notas": "4.8",
+    "quantidade_produtos": 1022,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/9973CYFPA2.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20023,
+    "titulo": "Tênis ASICS Gel-Contend 9 Feminino",
+    "preco": "178.94",
+    "preco_comparacao": "357.89",
+    "desconto": "50.00",
+    "notas": "4.7",
+    "quantidade_produtos": 1023,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/9900421KA2.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20024,
+    "titulo": "Tênis Masculino ASICS Gel-Contend 9",
+    "preco": "172.22",
+    "preco_comparacao": "344.43",
+    "desconto": "50.00",
+    "notas": "4.7",
+    "quantidade_produtos": 1024,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/99003233A18.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20025,
+    "titulo": "Tênis Unissex Asics Superblast 3",
+    "preco": "425.00",
+    "preco_comparacao": "1699.99",
+    "desconto": "75.00",
+    "notas": "4.3",
+    "quantidade_produtos": 1025,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/9973E051A9.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20026,
+    "titulo": "Tênis Feminino ASICS Gel-Nagoya 8",
+    "preco": "166.66",
+    "preco_comparacao": "333.32",
+    "desconto": "50.00",
+    "notas": "4.2",
+    "quantidade_produtos": 1026,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/996791EZA2.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20027,
+    "titulo": "Tênis Feminino ASICS Gel Thunderlight 2",
+    "preco": "188.88",
+    "preco_comparacao": "377.77",
+    "desconto": "50.00",
+    "notas": "4.8",
+    "quantidade_produtos": 1027,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/9973CZ12A2.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20028,
+    "titulo": "Tênis ASICS Gel-Contend 9 Feminino",
+    "preco": "173.68",
+    "preco_comparacao": "347.36",
+    "desconto": "50.00",
+    "notas": "4.7",
+    "quantidade_produtos": 1028,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/99004218A2.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20029,
+    "titulo": "Tênis ASICS Raiden 4 Feminino",
+    "preco": "144.44",
+    "preco_comparacao": "288.88",
+    "desconto": "50.00",
+    "notas": "4.7",
+    "quantidade_produtos": 1029,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/992620CWA2.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20030,
+    "titulo": "Tênis Feminino ASICS Gel Thunderlight 2",
+    "preco": "183.33",
+    "preco_comparacao": "366.66",
+    "desconto": "50.00",
+    "notas": "4.8",
+    "quantidade_produtos": 1030,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/9973CZKLA9.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20031,
+    "titulo": "Tênis Unissex Asics Superblast 3",
+    "preco": "425.00",
+    "preco_comparacao": "1699.99",
+    "desconto": "75.00",
+    "notas": "4.3",
+    "quantidade_produtos": 1031,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/9973E0I0A7.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20032,
+    "titulo": "Tênis ASICS Gel-Nagoya ST Masculino",
+    "preco": "161.04",
+    "preco_comparacao": "322.09",
+    "desconto": "50.00",
+    "notas": "4.6",
+    "quantidade_produtos": 1032,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/99005103A2.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20033,
+    "titulo": "Tênis Unissex Asics Superblast 3",
+    "preco": "425.00",
+    "preco_comparacao": "1699.99",
+    "desconto": "75.00",
+    "notas": "4.3",
+    "quantidade_produtos": 1033,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/9973E0H3A39.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20034,
+    "titulo": "Tênis Infantil ASICS Buzz 4 Senna",
+    "preco": "142.10",
+    "preco_comparacao": "284.20",
+    "desconto": "50.00",
+    "notas": "5.0",
+    "quantidade_produtos": 1034,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/9972ZA3LA2.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20035,
+    "titulo": "Tênis Masculino ASICS GEL-Pulse 17 Se",
+    "preco": "171.95",
+    "preco_comparacao": "343.90",
+    "desconto": "50.00",
+    "notas": "4.8",
+    "quantidade_produtos": 1035,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/M18E8O02A1.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  },
+  {
+    "id": 20036,
+    "titulo": "Tênis Masculino ASICS Gel Thunderlight 2",
+    "preco": "168.42",
+    "preco_comparacao": "336.84",
+    "desconto": "50.00",
+    "notas": "5.0",
+    "quantidade_produtos": 1036,
+    "fotos": [
+      "https://imgcentauro-a.akamaihd.net/1300x1300/9973CX2RA2.jpg"
+    ],
+    "status": "ativo",
+    "promo_ativa": 0
+  }
+]
