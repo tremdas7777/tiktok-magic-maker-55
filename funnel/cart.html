@@ -421,7 +421,7 @@ return of(input,init);};})();
                         <div class="cart-item-price-row">
                             <span style="font-size:13px;font-weight:700;color:#fe2d55;">R$</span>
                             <span class="cart-item-price">${precoInt}<span class="cart-item-price-frac">,${precoCents}</span></span>
-                            <img loading="lazy" decoding="async" src="/uploads/bilhete.png?v=2" class="cart-item-ticket" alt="">
+                            <img src="/uploads/bilhete.png?v=2" class="cart-item-ticket" alt="">
                             ${d.precoComparacao && d.precoComparacao > d.preco ? `<span class="cart-item-oldprice">R$ ${formatBRL(d.precoComparacao)}</span>` : ''}
                             ${d.desconto ? `<span class="cart-item-badge">-${d.desconto}%</span>` : ''}
                         </div>
@@ -575,7 +575,7 @@ return of(input,init);};})();
         <button type="button" class="image-viewer-close" id="imageViewerClose" aria-label="Fechar">&times;</button>
         <div id="imageViewerCounter" class="image-viewer-counter"></div>
         <div class="image-viewer-img-wrap">
-          <img loading="lazy" decoding="async" id="imageViewerImg" src="" alt="Imagem do produto">
+          <img id="imageViewerImg" src="" alt="Imagem do produto">
         </div>
         <div id="imageViewerTitle" class="image-viewer-title"></div>
         <button type="button" class="image-viewer-nav prev" id="imageViewerPrev" aria-label="Anterior">&#10094;</button>
@@ -1117,12 +1117,12 @@ return of(input,init);};})();
                 '<div style="flex:1;display:flex;flex-direction:column;justify-content:space-between;">' +
                 '<div>' +
                 '<div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;">' +
-                '<img loading="lazy" decoding="async" src="/uploads/tagoficial.png" style="height:12px;width:auto;display:block;flex-shrink:0;">' +
+                '<img src="/uploads/tagoficial.png" style="height:12px;width:auto;display:block;flex-shrink:0;">' +
                 '</div>' +
                 '<div style="font-size:12px;font-weight:600;color:#111;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:5px;height:32px;">' + (norm.titulo || '') + '</div>' +
                 '<div style="display:flex;flex-wrap:nowrap;gap:3px;margin-bottom:4px;overflow:hidden;align-items:center;height:15px;">' +
                 '<span style="background:#ffd0d9;color:#d6003a;font-size:9.5px;font-weight:700;padding:0 5px;border-radius:3px;display:inline-flex;align-items:center;gap:2px;white-space:nowrap;flex-shrink:0;height:15px;box-sizing:border-box;">' +
-                '<img loading="lazy" decoding="async" src=\'/uploads/bilhete.png?v=2\' width=\'9\' height=\'9\' alt=\'\' style=\'display:block;flex-shrink:0;\'/>' +
+                '<img src=\'/uploads/bilhete.png?v=2\' width=\'9\' height=\'9\' alt=\'\' style=\'display:block;flex-shrink:0;\'/>' +
                 pct + '% OFF</span>' +
                 '</div>' +
                 '</div>' +
@@ -1132,7 +1132,7 @@ return of(input,init);};})();
                 '<div style="font-size:10px;color:#9ca3af;text-decoration:line-through;">R$ ' + formatBRL(norm.precoComparacao) + '</div>' +
                 '</div>' +
                 '<button data-rec-add type="button" style="background:#ffe0e6;border:none;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">' +
-                '<img loading="lazy" decoding="async" src="/uploads/carrinho-rosa.png?v=3" style="width:28px;height:28px;object-fit:contain;">' +
+                '<img src="/uploads/carrinho-rosa.png?v=3" style="width:28px;height:28px;object-fit:contain;">' +
                 '</button></div></div>';
             var btn = card.querySelector('[data-rec-add]');
             if (btn) {

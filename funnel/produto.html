@@ -2862,7 +2862,7 @@ return of(input,init);};})();
                 <div id="modal-conteudo" class="hidden" style="padding-bottom:0;">
                 <!-- Topo: imagem + preço -->
                 <div style="display:flex;gap:12px;padding:4px 0 10px;">
-                <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Produto" id="img-solts" style="width:80px;height:80px;min-width:80px;object-fit:contain;border-radius:8px;background:#f5f5f5;display:block;" loading="lazy">
+                <img loading="lazy" decoding="async" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Produto" id="img-solts" style="width:80px;height:80px;min-width:80px;object-fit:contain;border-radius:8px;background:#f5f5f5;display:block;" loading="lazy">
                 <div style="flex:1;min-width:0;">
                 <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap;">
                 <span id="div_ors_badge" style="background:#fe2d55;color:#fff;font-weight:700;padding:2px 7px;border-radius:6px;font-size:13px;flex-shrink:0;"></span>
@@ -2969,7 +2969,7 @@ return of(input,init);};})();
                 <div style="display:flex;align-items:center;justify-content:space-between;">
                     <div style="display:flex;align-items:center;gap:14px;flex:1;min-width:0;">
                         <div style="width:56px;height:56px;min-width:56px;border-radius:999px;background:#d1d5db;overflow:hidden;flex-shrink:0;">
-                            <img id="store-logo" src="/uploads/asics-logo.jpg" data-default-logo="/uploads/asics-logo.jpg" alt="Logo ASICS" style="width:100%;height:100%;object-fit:contain;display:block;background:#fff;padding:6px;box-sizing:border-box;" loading="lazy">
+                            <img loading="lazy" decoding="async" id="store-logo" src="/uploads/asics-logo.jpg" data-default-logo="/uploads/asics-logo.jpg" alt="Logo ASICS" style="width:100%;height:100%;object-fit:contain;display:block;background:#fff;padding:6px;box-sizing:border-box;" loading="lazy">
                         </div>
                         <div style="min-width:0;flex:1;">
                             <p id="store-nome" style="font-size:16px;font-weight:700;color:#111;margin:0;line-height:1.2;">Shop</p>
@@ -3089,7 +3089,7 @@ return of(input,init);};})();
                         const fotoCard = resolveMediaPath((Array.isArray(prod.fotos) && prod.fotos[0]) ? prod.fotos[0] : (prod.imagemPrincipal || prod.imagem || '')) || FALLBACK_MEDIA;
                         card.innerHTML = `
                             <div class="img-wrap">
-                                <img loading="lazy" decoding="async" src="${fotoCard}" alt="${prod.titulo || t('product')}" onerror="this.onerror=null;this.src='${FALLBACK_MEDIA}';">
+                                <img src="${fotoCard}" alt="${prod.titulo || t('product')}" onerror="this.onerror=null;this.src='${FALLBACK_MEDIA}';">
                             </div>
                             <div class="valores">
                                 <p class="preco">R$ ${prod.preco || '--'}</p>
@@ -3157,7 +3157,7 @@ return of(input,init);};})();
                         card.insertAdjacentHTML('beforeend',
                             '<div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,transparent 50%);pointer-events:none;"></div>'
                             + '<div style="position:absolute;bottom:7px;left:7px;right:7px;display:flex;align-items:center;gap:5px;pointer-events:none;">'
-                            + '<img loading="lazy" decoding="async" src="' + item.avatar + '" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:1.5px solid #fff;flex-shrink:0;" onerror="this.onerror=null;this.src=\'images/perfil1.png\'">'
+                            + '<img src="' + item.avatar + '" style="width:22px;height:22px;border-radius:50%;object-fit:cover;border:1.5px solid #fff;flex-shrink:0;" onerror="this.onerror=null;this.src=\'images/perfil1.png\'">'
                             + '<span style="color:#fff;font-size:10px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + item.nome + '</span></div>'
                             + '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.9);display:flex;align-items:center;justify-content:center;pointer-events:none;">'
                             + '<svg width="14" height="14" viewBox="0 0 24 24" fill="#111"><polygon points="5 3 19 12 5 21 5 3"/></svg></div>'
@@ -3179,7 +3179,7 @@ return of(input,init);};})();
                     div.innerHTML = `
             <div class="review-header">
                 <div class="review-avatar">
-                    <img loading="lazy" decoding="async" alt="${comentario.nome || t('user')}" src="${avatarSrc}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.onerror=null;this.src='${FALLBACK_MEDIA}';">
+                    <img alt="${comentario.nome || t('user')}" src="${avatarSrc}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" onerror="this.onerror=null;this.src='${FALLBACK_MEDIA}';">
                 </div>
                 <div style="display: flex; flex-direction: column;">
                     <span class="review-name">${comentario.nome || t('user')}</span>
@@ -3192,7 +3192,7 @@ return of(input,init);};})();
             <div class="review-variant">${comentario.variacao ? t('item_label') + ' ' + comentario.variacao : ''}</div>
             <div class="review-text">${comentario.descricao || ''}</div>
             <div class="review-images">
-                ${fotos.map((f, i) => `<div class="review-image"><img loading="lazy" decoding="async" alt="Review photo ${i + 1}" src="${f}" onerror="this.onerror=null;this.src='${FALLBACK_MEDIA}';" onclick="openFullscreen('${f}', ${i})"></div>`).join('')}
+                ${fotos.map((f, i) => `<div class="review-image"><img alt="Review photo ${i + 1}" src="${f}" onerror="this.onerror=null;this.src='${FALLBACK_MEDIA}';" onclick="openFullscreen('${f}', ${i})"></div>`).join('')}
             </div>
         `;
                     container.appendChild(div);
@@ -3271,8 +3271,8 @@ return of(input,init);};})();
         if (_stEl && produto.titulo) _stEl.textContent = produto.titulo;
         var _ptEl = document.getElementById('product-title');
                                 if (_ptEl && produto.titulo) {
-                                    var _tagH = (window.EXIBIR_TAG_OFICIAL ? '<img loading="lazy" decoding="async" src="/uploads/tagoficial.png" style="height:14px;width:auto;vertical-align:middle;margin-right:4px;display:inline;">' : '')
-                                              + (window.EXIBIR_TAG_TORCER  ? '<img loading="lazy" decoding="async" src="/uploads/tagtorcer.png"  style="height:14px;width:auto;vertical-align:middle;margin-right:4px;display:inline;">' : '');
+                                    var _tagH = (window.EXIBIR_TAG_OFICIAL ? '<img src="/uploads/tagoficial.png" style="height:14px;width:auto;vertical-align:middle;margin-right:4px;display:inline;">' : '')
+                                              + (window.EXIBIR_TAG_TORCER  ? '<img src="/uploads/tagtorcer.png"  style="height:14px;width:auto;vertical-align:middle;margin-right:4px;display:inline;">' : '');
                                     _ptEl.innerHTML = _tagH + produto.titulo;
                                 }
                                 // Número de avaliações dinâmico do produto selecionado
@@ -3570,14 +3570,14 @@ return of(input,init);};})();
         return '<div onclick="window.location.href=\'' + url + '\'" style="background:#fff;border:1px solid #f3f4f6;border-radius:12px;padding:10px;display:flex;flex-direction:column;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.06);min-width:0;">'
           + '<div style="width:100%;height:140px;margin-bottom:8px;border-radius:6px;overflow:hidden;background:#f9f9f9;"><img src="' + img + '" alt="" style="width:100%;height:100%;object-fit:contain;display:block;" loading="lazy"></div>'
           + '<div style="flex:1;display:flex;flex-direction:column;justify-content:space-between;"><div>'
-          + '<div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;"><img loading="lazy" decoding="async" src="/uploads/tagoficial.png" style="height:12px;width:auto;"><img loading="lazy" decoding="async" src="/uploads/tagtorcer.png" style="height:12px;width:auto;"></div>'
+          + '<div style="display:flex;align-items:center;gap:4px;margin-bottom:3px;"><img src="/uploads/tagoficial.png" style="height:12px;width:auto;"><img src="/uploads/tagtorcer.png" style="height:12px;width:auto;"></div>'
           + '<div style="font-size:12px;font-weight:600;color:#111;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-bottom:5px;height:32px;">' + (p.titulo || '') + '</div>'
-          + '<div style="display:flex;gap:3px;margin-bottom:4px;"><span style="background:#ffd0d9;color:#d6003a;font-size:9.5px;font-weight:700;padding:0 5px;border-radius:3px;display:inline-flex;align-items:center;gap:2px;height:15px;"><img loading="lazy" decoding="async" src=\'/uploads/bilhete.png?v=2\' width=\'9\' height=\'9\'/>' + pct(p) + '% OFF</span></div>'
+          + '<div style="display:flex;gap:3px;margin-bottom:4px;"><span style="background:#ffd0d9;color:#d6003a;font-size:9.5px;font-weight:700;padding:0 5px;border-radius:3px;display:inline-flex;align-items:center;gap:2px;height:15px;"><img src=\'/uploads/bilhete.png?v=2\' width=\'9\' height=\'9\'/>' + pct(p) + '% OFF</span></div>'
           + '<div style="margin-bottom:4px;"><span style="background:#b2f0f5;color:#006875;font-size:9.5px;font-weight:700;padding:0 5px;border-radius:3px;height:15px;display:inline-flex;align-items:center;">Frete grátis</span></div>'
           + '<div style="display:flex;align-items:center;gap:3px;margin-bottom:4px;"><span style="color:#f59e0b;font-size:11px;">★</span><span style="font-size:10px;color:#6b7280;">' + (p.notas || '5') + ' | ' + (p.quantidade_produtos || 0) + ' vendido(s)</span></div>'
           + '</div><div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;"><div><div style="font-size:16px;font-weight:700;color:#fe2d55;">R$ ' + fmt(p.preco) + '</div>'
           + '<div style="font-size:10px;color:#9ca3af;text-decoration:line-through;">R$ ' + fmt(Number(p.preco_comparacao || p.precoComparacao || p.preco)) + '</div></div>'
-          + '<button onclick="event.stopPropagation();_recOpenModal(' + p.id + ')" style="background:#ffe0e6;border:none;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;"><img loading="lazy" decoding="async" src="/uploads/carrinho-rosa.png?v=3" style="width:28px;height:28px;object-fit:contain;"></button>'
+          + '<button onclick="event.stopPropagation();_recOpenModal(' + p.id + ')" style="background:#ffe0e6;border:none;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;"><img src="/uploads/carrinho-rosa.png?v=3" style="width:28px;height:28px;object-fit:contain;"></button>'
           + '</div></div></div>';
       }
       document.addEventListener('DOMContentLoaded', function () {
