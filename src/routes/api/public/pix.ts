@@ -10,16 +10,7 @@ export const Route = createFileRoute("/api/public/pix")({
   server: {
     handlers: {
       GET: async () => Response.json({ ok: true, route: "pix" }),
-      POST: async ({ request }) => {
-        const marker = Response.json({ ok: true, step: "entered" });
-        try {
-          const body = await request.text();
-          void body;
-          return Response.json({ ok: true, step: "body-read" });
-        } catch {
-          return marker;
-        }
-      },
+      POST: async ({ request }) => handlePixRequest(request),
     },
   },
 });
