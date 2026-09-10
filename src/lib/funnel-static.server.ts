@@ -25,13 +25,6 @@ export async function handleFunnelRequest(request: Request): Promise<Response | 
   const url = new URL(request.url);
   const pathname = url.pathname.replace(/\/+$/, "") || "/";
 
-  if (pathname === "/__worker_check") {
-    return new Response(JSON.stringify({ worker: true, method: request.method }), {
-      status: 200,
-      headers: { "Content-Type": "application/json; charset=utf-8" },
-    });
-  }
-
   if (request.method === "POST" && PIX_PATHS.has(pathname)) {
     return handlePixRequest(request);
   }
