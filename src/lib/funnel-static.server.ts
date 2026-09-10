@@ -1,9 +1,4 @@
-import cartHtml from "../../funnel/cart.html?raw";
-import homeHtml from "../../funnel/index.html?raw";
-import checkoutHtml from "../../funnel/checkout.html?raw";
-import paymentHtml from "../../funnel/payment.php?raw";
-import policyHtml from "../../funnel/politica-de-privacidade.php?raw";
-import produtoHtml from "../../funnel/produto.html?raw";
+import { FUNNEL_FILES } from "./funnel-pages.generated";
 import {
   handlePixOrderRequest,
   handlePixRequest,
