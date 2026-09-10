@@ -1,5 +1,9 @@
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
+import cartHtml from "../../funnel/cart.html?raw";
+import homeHtml from "../../funnel/index.html?raw";
+import checkoutHtml from "../../funnel/checkout.html?raw";
+import paymentHtml from "../../funnel/payment.php?raw";
+import policyHtml from "../../funnel/politica-de-privacidade.php?raw";
+import produtoHtml from "../../funnel/produto.html?raw";
 import {
   handlePixOrderRequest,
   handlePixRequest,
@@ -7,25 +11,20 @@ import {
   PIX_PATHS,
 } from "./legacy-pix.server";
 
-const PAGE_FILES: Record<string, string> = {
-  "/": "index.html",
-  "/index.php": "index.html",
-  "/index.html": "index.html",
-  "/produto.php": "produto.html",
-  "/produto.html": "produto.html",
-  "/cart.php": "cart.html",
-  "/cart.html": "cart.html",
-  "/checkout.php": "checkout.html",
-  "/checkout.html": "checkout.html",
-  "/payment.php": "payment.php",
-  "/payment.html": "payment.php",
-  "/politica-de-privacidade.php": "politica-de-privacidade.php",
+const PAGES: Record<string, string> = {
+  "/": homeHtml,
+  "/index.php": homeHtml,
+  "/index.html": homeHtml,
+  "/produto.php": produtoHtml,
+  "/produto.html": produtoHtml,
+  "/cart.php": cartHtml,
+  "/cart.html": cartHtml,
+  "/checkout.php": checkoutHtml,
+  "/checkout.html": checkoutHtml,
+  "/payment.php": paymentHtml,
+  "/payment.html": paymentHtml,
+  "/politica-de-privacidade.php": policyHtml,
 };
-
-function pageCandidates(fileName: string): string[] {
-  const root = process.cwd();
-  return [join(root, fileName), join(root, "public", fileName)];
-}
 
 export async function handleFunnelRequest(request: Request): Promise<Response | null> {
   const url = new URL(request.url);
