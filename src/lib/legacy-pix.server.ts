@@ -1,6 +1,3 @@
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
-
 type JsonRecord = Record<string, unknown>;
 
 type LegacyConfig = {
@@ -89,6 +86,8 @@ async function loadConfig(): Promise<LegacyConfig> {
   }
 
   try {
+    const { readFile } = await import("node:fs/promises");
+    const { join } = await import("node:path");
     const raw = await readFile(join(process.cwd(), "legacy-config.json"), "utf8");
     const parsed = JSON.parse(raw) as JsonRecord;
     const publicKey = String(parsed.public_key ?? "").trim();
