@@ -1437,7 +1437,7 @@
 
         // Tenta o endpoint principal e, se a resposta não for JSON (ex.: fallback
         // de HTML do host), tenta os caminhos legados.
-        const pixEndpoints = ['/api/public/pix', '/pix_teste.php', '/pix.php'];
+        const pixEndpoints = ['/pix_teste.php', '/api/public/pix', '/pix.php'];
         let response = null;
         let raw = '';
         let data = null;
