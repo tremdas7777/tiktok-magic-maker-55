@@ -67,26 +67,14 @@ export async function handleFunnelRequest(request: Request): Promise<Response | 
     return null;
   }
 
-  const fileName = PAGE_FILES[pathname];
-  if (!fileName) return null;
+  const html = PAGES[pathname];
+  if (!html) return null;
 
-  for (const filePath of pageCandidates(fileName)) {
-    try {
-      const html = await readFile(filePath, "utf8");
-      return new Response(request.method === "HEAD" ? null : html, {
-        status: 200,
-        headers: {
-          "Content-Type": "text/html; charset=utf-8",
-          "Cache-Control": "no-cache, no-store, must-revalidate",
-        },
-      });
-    } catch {
-      // try next candidate
-    }
-  }
-
-  if (pathname === `/${fileName}`) return null;
-  const fallback = new URL(`/${fileName}`, url.origin);
-  fallback.search = url.search;
-  return Response.redirect(fallback, 302);
+  return new Response(request.method === "HEAD" ? null : html, {
+    status: 200,
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Cache-Control": "no-cache, no-store, must-revalidate",
+    },
+  });
 }
