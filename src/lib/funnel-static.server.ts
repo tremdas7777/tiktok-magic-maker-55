@@ -6,7 +6,7 @@ import {
   PIX_PATHS,
 } from "./legacy-pix.server";
 
-const PAGES: Record<string, string> = {
+const PAGES: Record<string, string | undefined> = {
   "/": FUNNEL_FILES["index.html"],
   "/index.php": FUNNEL_FILES["index.html"],
   "/index.html": FUNNEL_FILES["index.html"],
