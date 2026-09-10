@@ -1,6 +1,5 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Plugin } from "vite";
-import { handleFunnelRequest } from "./funnel-static.server";
 
 function nodeToWebRequest(req: IncomingMessage, origin: string): Promise<Request> {
   const url = new URL(req.url || "/", origin);
@@ -48,6 +47,7 @@ export function funnelPlugin(): Plugin {
         try {
           const origin = server.resolvedUrls?.local[0] ?? "http://localhost:8080";
           const request = await nodeToWebRequest(req, origin);
+          const { handleFunnelRequest } = await import("./funnel-static.server");
           const response = await handleFunnelRequest(request);
           if (!response) {
             next();
@@ -63,6 +63,7 @@ export function funnelPlugin(): Plugin {
       server.middlewares.use(async (req, res, next) => {
         try {
           const request = await nodeToWebRequest(req, "http://localhost:4173");
+          const { handleFunnelRequest } = await import("./funnel-static.server");
           const response = await handleFunnelRequest(request);
           if (!response) {
             next();

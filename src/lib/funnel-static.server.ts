@@ -1,5 +1,4 @@
-import { readFile } from "node:fs/promises";
-import { join } from "node:path";
+import { FUNNEL_FILES } from "./funnel-pages.generated";
 import {
   handlePixOrderRequest,
   handlePixRequest,
@@ -7,25 +6,20 @@ import {
   PIX_PATHS,
 } from "./legacy-pix.server";
 
-const PAGE_FILES: Record<string, string> = {
-  "/": "index.html",
-  "/index.php": "index.html",
-  "/index.html": "index.html",
-  "/produto.php": "produto.html",
-  "/produto.html": "produto.html",
-  "/cart.php": "cart.html",
-  "/cart.html": "cart.html",
-  "/checkout.php": "checkout.html",
-  "/checkout.html": "checkout.html",
-  "/payment.php": "payment.php",
-  "/payment.html": "payment.php",
-  "/politica-de-privacidade.php": "politica-de-privacidade.php",
+const PAGES: Record<string, string> = {
+  "/": FUNNEL_FILES["index.html"],
+  "/index.php": FUNNEL_FILES["index.html"],
+  "/index.html": FUNNEL_FILES["index.html"],
+  "/produto.php": FUNNEL_FILES["produto.html"],
+  "/produto.html": FUNNEL_FILES["produto.html"],
+  "/cart.php": FUNNEL_FILES["cart.html"],
+  "/cart.html": FUNNEL_FILES["cart.html"],
+  "/checkout.php": FUNNEL_FILES["checkout.html"],
+  "/checkout.html": FUNNEL_FILES["checkout.html"],
+  "/payment.php": FUNNEL_FILES["payment.php"],
+  "/payment.html": FUNNEL_FILES["payment.php"],
+  "/politica-de-privacidade.php": FUNNEL_FILES["politica-de-privacidade.php"],
 };
-
-function pageCandidates(fileName: string): string[] {
-  const root = process.cwd();
-  return [join(root, fileName), join(root, "public", fileName)];
-}
 
 export async function handleFunnelRequest(request: Request): Promise<Response | null> {
   const url = new URL(request.url);
@@ -68,26 +62,14 @@ export async function handleFunnelRequest(request: Request): Promise<Response | 
     return null;
   }
 
-  const fileName = PAGE_FILES[pathname];
-  if (!fileName) return null;
+  const html = PAGES[pathname];
+  if (!html) return null;
 
-  for (const filePath of pageCandidates(fileName)) {
-    try {
-      const html = await readFile(filePath, "utf8");
-      return new Response(request.method === "HEAD" ? null : html, {
-        status: 200,
-        headers: {
-          "Content-Type": "text/html; charset=utf-8",
-          "Cache-Control": "no-cache, no-store, must-revalidate",
-        },
-      });
-    } catch {
-      // try next candidate
-    }
-  }
-
-  if (pathname === `/${fileName}`) return null;
-  const fallback = new URL(`/${fileName}`, url.origin);
-  fallback.search = url.search;
-  return Response.redirect(fallback, 302);
+  return new Response(request.method === "HEAD" ? null : html, {
+    status: 200,
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Cache-Control": "no-cache, no-store, must-revalidate",
+    },
+  });
 }
