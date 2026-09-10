@@ -9,6 +9,7 @@ import { handlePixRequest } from "@/lib/legacy-pix.server";
 export const Route = createFileRoute("/api/public/pix")({
   server: {
     handlers: {
+      GET: async () => Response.json({ ok: true, route: "pix" }),
       POST: async ({ request }) => handlePixRequest(request),
     },
   },
