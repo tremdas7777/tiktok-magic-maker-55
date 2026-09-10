@@ -1,6 +1,11 @@
 ﻿<!DOCTYPE html>
 <html lang="pt">
 <head>
+<script>
+(function(){var C=Object.create(null);var of=window.fetch.bind(window);
+window.fetch=function(input,init){try{var u=typeof input==='string'?input:(input&&input.url)||'';var m=/produtos(-vitrine)?\.json/.exec(u);if(m){var k='/'+m[0];if(!C[k]){C[k]=of(k,{cache:'force-cache'}).then(function(r){return r.text();});}return C[k].then(function(t){return new Response(t,{status:200,headers:{'Content-Type':'application/json'}});});}}catch(e){}
+return of(input,init);};})();
+</script>
   <meta charset="UTF-8" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
@@ -653,7 +658,7 @@
   <!-- Banner Oficial TikTok Shop -->
   <div style="border-radius:12px;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,0.18);background:#1a0a04;position:relative;z-index:2;-webkit-transform:translateZ(0);transform:translateZ(0);">
   <div id="oficialBannerStrip" onclick="abrirModalOficial()" style="background:linear-gradient(to right,#321408 0%,#180a04 55%,#080302 100%);cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:9px 14px;user-select:none;position:relative;">
-    <img src="/assets/img/tiktok-shop-oficial.png" alt="TikTok Shop Oficial" style="height:22px;width:auto;object-fit:contain;display:block;opacity:0.82;filter:sepia(0.25) brightness(1.08);position:relative;top:-2px;">
+    <img loading="lazy" decoding="async" src="/assets/img/tiktok-shop-oficial.png" alt="TikTok Shop Oficial" style="height:22px;width:auto;object-fit:contain;display:block;opacity:0.82;filter:sepia(0.25) brightness(1.08);position:relative;top:-2px;">
     <div style="display:flex;align-items:center;gap:0px;">
       <span style="color:#d4aa72;font-size:11px;letter-spacing:0.1px;">Devoluções gratuitas · Frete grátis</span>
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
@@ -664,13 +669,13 @@
     <div class="flex justify-between items-center px-4 pt-3 pb-2">
       <div class="flex items-center space-x-4">
         <div id="loja-avatar-wrap" style="position:relative;width:62px;height:62px;min-width:62px;border-radius:999px;background:#fff;overflow:hidden;flex-shrink:0;border:1px solid #eee;">
-          <img id="loja-logo" src="/uploads/asics-logo.jpg" data-default-logo="/uploads/asics-logo.jpg" alt="Logo ASICS" style="width:100%;height:100%;object-fit:contain;display:block;position:relative;background:#fff;padding:4px;box-sizing:border-box;" />
+          <img loading="lazy" decoding="async" id="loja-logo" src="/uploads/asics-logo.jpg" data-default-logo="/uploads/asics-logo.jpg" alt="Logo ASICS" style="width:100%;height:100%;object-fit:contain;display:block;position:relative;background:#fff;padding:4px;box-sizing:border-box;" />
           <span id="loja-initial" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;color:#fff;z-index:0;letter-spacing:-1px;">S</span>
         </div>
         <div class="flex flex-col leading-tight">
           <span id="loja-nome" style="font-size:16px;font-weight:600;color:#111;line-height:1.1;">Shop</span>
           <div style="display:flex;align-items:center;gap:0px;margin-top:0;">
-            <img src="/uploads/taglojaestrela.png" style="height:15px;max-width:70px;width:auto;display:block;flex-shrink:0;margin-left:0;margin-right:5px;">            <span id="loja-vendas" class="text-[12px] text-gray-600">99.176 vendido(s)</span>
+            <img loading="lazy" decoding="async" src="/uploads/taglojaestrela.png" style="height:15px;max-width:70px;width:auto;display:block;flex-shrink:0;margin-left:0;margin-right:5px;">            <span id="loja-vendas" class="text-[12px] text-gray-600">99.176 vendido(s)</span>
           </div>
         </div>
         <input type="hidden" id="vitrine-id" value="1" />
@@ -709,7 +714,7 @@
 
     <!-- Banner visual da loja -->
     <div id="banner-loja" class="w-full flex justify-center items-center py-3" style="display:none;">
-      <img id="img-banner-loja" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Banner da Loja" class="rounded-lg shadow max-w-full h-32 object-cover" style="min-width:200px; max-width:900px; width:100%;" loading="lazy" onerror="this.onerror=null;this.src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';">
+      <img loading="lazy" decoding="async" id="img-banner-loja" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Banner da Loja" class="rounded-lg shadow max-w-full h-32 object-cover" style="min-width:200px; max-width:900px; width:100%;" loading="lazy" onerror="this.onerror=null;this.src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';">
     </div>
   </section>
   </div><!-- /card-wrapper -->
@@ -754,7 +759,7 @@
         <button class="filter-btn text-gray-500 whitespace-nowrap px-2 border-r border-gray-200" data-filter="mais-vendidos">Mais vendidos</button>
         <button class="filter-btn text-gray-500 whitespace-nowrap px-2 border-r border-gray-200" data-filter="lancamentos">Lançamentos</button>
         <button id="precoBtn" class="filter-btn px-2 text-gray-500 whitespace-nowrap flex items-center gap-0" data-filter="preco">
-          Preço <img id="precoIcon" src="/uploads/preconovoicon.png" style="width:28px;height:28px;object-fit:contain;display:inline-block;vertical-align:middle;transition:transform .2s;margin-left:-4px;">
+          Preço <img loading="lazy" decoding="async" id="precoIcon" src="/uploads/preconovoicon.png" style="width:28px;height:28px;object-fit:contain;display:inline-block;vertical-align:middle;transition:transform .2s;margin-left:-4px;">
         </button>
       </div>
     </div>
@@ -778,7 +783,7 @@
           <span id="catPanelTitle" style="font-size:16px;font-weight:700;color:#111;"></span>
         </div>
         <button aria-label="Carrinho" onclick="window.location.href='cart.html'" style="background:none;border:none;cursor:pointer;padding:4px;display:flex;align-items:center;position:relative;flex-shrink:0;">
-          <img src="/uploads/nav-carrinho.png" alt="Carrinho" style="width:36px;height:36px;object-fit:contain;display:block;filter:invert(1);">
+          <img loading="lazy" decoding="async" src="/uploads/nav-carrinho.png" alt="Carrinho" style="width:36px;height:36px;object-fit:contain;display:block;filter:invert(1);">
           <span id="catPanelCartBadge" style="position:absolute;top:2px;right:2px;min-width:16px;height:16px;background:#fe2d55;color:#fff;font-size:10px;font-weight:700;border-radius:999px;display:none;align-items:center;justify-content:center;padding:0 3px;"></span>
         </button>
       </div>
@@ -786,7 +791,7 @@
         <button class="cat-filter-btn active" data-filter="recomendados">Recomendados</button>
         <button class="cat-filter-btn" data-filter="mais-vendidos">Mais vendidos</button>
         <button class="cat-filter-btn" data-filter="lancamentos">Lançamentos</button>
-        <button class="cat-filter-btn" data-filter="preco" style="display:flex;align-items:center;gap:0;">Preço <img src="/uploads/preconovoicon.png" style="width:24px;height:24px;object-fit:contain;display:inline-block;margin-left:-3px;" id="catPrecoIcon"></button>
+        <button class="cat-filter-btn" data-filter="preco" style="display:flex;align-items:center;gap:0;">Preço <img loading="lazy" decoding="async" src="/uploads/preconovoicon.png" style="width:24px;height:24px;object-fit:contain;display:inline-block;margin-left:-3px;" id="catPrecoIcon"></button>
       </div>
     </div>
     <div id="catPanelBody">
@@ -804,7 +809,7 @@
       <div class="p-4 space-y-4" style="position:sticky; bottom:0; left:0; right:0; z-index:10; background:transparent; box-shadow:none; padding-bottom: calc(32px + env(safe-area-inset-bottom));">
         <button id="button-comprar" onclick="finalizarCompra()" class="w-full inline-flex items-center justify-center px-4 py-3 bg-pink-500 text-white text-sm font-semibold shadow hover:bg-pink-600 transition" style="border-radius: 12px;">
           <i class="fas fa-shopping-bag mr-2"></i>
-          FINALIZAR COMPRA          <img id="img_gif" class="hidden ml-2 w-6" src="https://static.wixstatic.com/media/68315b_30dbad1140034a3da3c59278654e1655~mv2.gif" alt="Carregando">
+          FINALIZAR COMPRA          <img loading="lazy" decoding="async" id="img_gif" class="hidden ml-2 w-6" src="https://static.wixstatic.com/media/68315b_30dbad1140034a3da3c59278654e1655~mv2.gif" alt="Carregando">
         </button>
       </div>
     </div>
@@ -822,7 +827,7 @@
       <div id="modal-conteudo" class="hidden" style="padding-bottom:0;">
         <!-- Topo: imagem + preço -->
         <div style="display:flex;gap:12px;padding:4px 0 10px;">
-          <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Produto" id="img-solts" style="width:80px;height:80px;min-width:80px;object-fit:contain;border-radius:8px;background:#f5f5f5;display:block;" loading="lazy">
+          <img loading="lazy" decoding="async" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Produto" id="img-solts" style="width:80px;height:80px;min-width:80px;object-fit:contain;border-radius:8px;background:#f5f5f5;display:block;" loading="lazy">
           <div style="flex:1;min-width:0;">
             <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap;">
               <span id="div_ors_badge" style="background:#fe2d55;color:#fff;font-weight:700;padding:2px 7px;border-radius:6px;font-size:13px;flex-shrink:0;"></span>
@@ -833,7 +838,7 @@
               <span id="div_ors_2" style="color:#aaa;font-size:13px;text-decoration:line-through;"></span>
             </div>
             <div id="modal-bilhete-chip" style="display:inline-flex;align-items:center;gap:4px;background:#fff0f3;border-radius:4px;padding:3px 8px;">
-              <img src="/uploads/bilhete.png?v=2" style="height:11px;width:auto;display:block;">
+              <img loading="lazy" decoding="async" src="/uploads/bilhete.png?v=2" style="height:11px;width:auto;display:block;">
               <span id="modal-bilhete-text" style="color:#fe2d55;font-size:11px;font-weight:700;">Desconto exclusivo</span>
             </div>
           </div>
@@ -841,7 +846,7 @@
         <!-- Banner Oferta Relâmpago (aparece se promo_ativa) -->
         <div id="modal-oferta-banner" style="display:none;margin-bottom:12px;">
           <span class="oferta-badge-wrap" style="display:inline-flex;align-items:center;border-radius:4px;overflow:hidden;flex-shrink:0;height:20px;background:#e8562a;">
-            <img src="/uploads/oferta-relamapago.png?v=2" style="height:20px;width:auto;display:block;">
+            <img loading="lazy" decoding="async" src="/uploads/oferta-relamapago.png?v=2" style="height:20px;width:auto;display:block;">
             <span class="oferta-timer" style="background:#fff0e8;color:#e8562a;font-size:11px;font-weight:800;padding:0 8px;height:100%;display:flex;align-items:center;">00:20:00</span>
           </span>
         </div>
@@ -864,7 +869,7 @@
       <button type="button" class="image-viewer-close" id="imageViewerClose" aria-label="Fechar">&times;</button>
       <div id="imageViewerCounter" class="image-viewer-counter"></div>
       <div class="image-viewer-img-wrap">
-        <img id="imageViewerImg" src="" alt="Imagem do produto">
+        <img loading="lazy" decoding="async" id="imageViewerImg" src="" alt="Imagem do produto">
       </div>
       <div id="imageViewerTitle" class="image-viewer-title"></div>
       <button type="button" class="image-viewer-nav prev" id="imageViewerPrev" aria-label="Anterior">&#10094;</button>
@@ -873,7 +878,7 @@
   </div>
 <div id="modalCartinha" style="display:none;position:fixed;z-index:99999;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.45);backdrop-filter:blur(1.5px);align-items:center;justify-content:center;">
   <div style="position:relative;max-width:400px;width:92vw;border-radius:22px;overflow:hidden;display:flex;flex-direction:column;align-items:center;background:transparent;">
-    <img src="/uploads/cartinha.png" alt="Cartinha de Desconto" style="width:100%;display:block;">
+    <img loading="lazy" decoding="async" src="/uploads/cartinha.png" alt="Cartinha de Desconto" style="width:100%;display:block;">
     <div style="position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;pointer-events:none;padding:56px 0 26px 0;gap:12px;">
       <div style="position:absolute;top:14px;left:0;width:100%;display:flex;justify-content:center;">
         <span id="cartinha-titulo-topo" style="font-weight:900;font-size:1.05rem;letter-spacing:0.6px;background:linear-gradient(90deg,#ffd700,#fffbe6);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 2px 8px rgba(0,0,0,0.2);">TÊNIS EM MOVIMENTO</span>
@@ -2813,7 +2818,7 @@ function resgatarCartinha() {
     <button onclick="fecharModalOficial()" style="position:absolute;top:14px;right:16px;background:rgba(255,255,255,.15);border:none;color:#fff;font-size:20px;width:40px;height:40px;border-radius:999px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;">✕</button>
     <!-- Cabeçalho dourado -->
     <div style="display:flex;flex-direction:column;align-items:center;padding:28px 20px 20px;gap:8px;">
-      <img src="/uploads/oficialcomtrevo.png" alt="TikTok Shop Oficial" style="height:110px;width:auto;max-width:100%;object-fit:contain;display:block;opacity:0.65;">
+      <img loading="lazy" decoding="async" src="/uploads/oficialcomtrevo.png" alt="TikTok Shop Oficial" style="height:110px;width:auto;max-width:100%;object-fit:contain;display:block;opacity:0.65;">
       <!-- 3 ícones de benefício -->
       <div style="display:flex;gap:24px;margin-top:18px;width:100%;justify-content:center;">
         <!-- 100% autêntico -->

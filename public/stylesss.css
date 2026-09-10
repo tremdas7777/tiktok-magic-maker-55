@@ -1,63 +1,51 @@
 /* TikTok Font Faces */
- @font-face {
+@font-face {
  font-family: 'TikTokFont';
- src: url('fonts/TikTokFont-Regular.woff2') format('woff2'),
- url('fonts/TikTokFont-Regular.woff') format('woff'),
- url('fonts/TikTokFont-Regular.otf') format('opentype');
+ src: url('/fonts/TikTokFont-Regular.woff2') format('woff2');
  font-weight: 400;
  font-style: normal;
  font-display: swap;
- }
+}
 
- @font-face {
+@font-face {
  font-family: 'TikTokFont';
- src: url('fonts/TikTokFont-Semibold.woff2') format('woff2'),
- url('fonts/TikTokFont-Semibold.woff') format('woff'),
- url('fonts/TikTokFont-Semibold.otf') format('opentype');
+ src: url('/fonts/TikTokFont-Semibold.woff2') format('woff2');
  font-weight: 600;
  font-style: normal;
  font-display: swap;
- }
+}
 
- @font-face {
+@font-face {
  font-family: 'TikTokFont';
- src: url('fonts/TikTokFont-Bold.woff2') format('woff2'),
- url('fonts/TikTokFont-Bold.woff') format('woff'),
- url('fonts/TikTokFont-Bold.otf') format('opentype');
+ src: url('/fonts/TikTokFont-Bold.woff2') format('woff2');
  font-weight: 700;
  font-style: normal;
  font-display: swap;
- }
+}
 
- @font-face {
+@font-face {
  font-family: 'TikTokDisplayFont';
- src: url('fonts/TikTokDisplayFont-Regular.woff2') format('woff2'),
- url('fonts/TikTokDisplayFont-Regular.woff') format('woff'),
- url('fonts/TikTokDisplayFont-Regular.otf') format('opentype');
+ src: url('/fonts/TikTokDisplayFont-Regular.woff2') format('woff2');
  font-weight: 400;
  font-style: normal;
  font-display: swap;
- }
+}
 
- @font-face {
+@font-face {
  font-family: 'TikTokDisplayFont';
- src: url('fonts/TikTokDisplayFont-Semibold.woff2') format('woff2'),
- url('fonts/TikTokDisplayFont-Semibold.woff') format('woff'),
- url('fonts/TikTokDisplayFont-Semibold.otf') format('opentype');
+ src: url('/fonts/TikTokDisplayFont-Regular.woff2') format('woff2');
  font-weight: 600;
  font-style: normal;
  font-display: swap;
- }
+}
 
- @font-face {
+@font-face {
  font-family: 'TikTokDisplayFont';
- src: url('fonts/TikTokDisplayFont-Bold.woff2') format('woff2'),
- url('fonts/TikTokDisplayFont-Bold.woff') format('woff'),
- url('fonts/TikTokDisplayFont-Bold.otf') format('opentype');
+ src: url('/fonts/TikTokDisplayFont-Regular.woff2') format('woff2');
  font-weight: 700;
  font-style: normal;
  font-display: swap;
- }
+}
 
  * {
  margin: 0;

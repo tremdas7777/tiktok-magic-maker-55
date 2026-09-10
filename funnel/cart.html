@@ -2,6 +2,11 @@
 <html lang="pt-BR">
 
 <head>
+<script>
+(function(){var C=Object.create(null);var of=window.fetch.bind(window);
+window.fetch=function(input,init){try{var u=typeof input==='string'?input:(input&&input.url)||'';var m=/produtos(-vitrine)?\.json/.exec(u);if(m){var k='/'+m[0];if(!C[k]){C[k]=of(k,{cache:'force-cache'}).then(function(r){return r.text();});}return C[k].then(function(t){return new Response(t,{status:200,headers:{'Content-Type':'application/json'}});});}}catch(e){}
+return of(input,init);};})();
+</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
     <title>Carrinho de Compras</title>
@@ -600,14 +605,14 @@
                 <span id="div_ors_2" style="color:#aaa;font-size:13px;text-decoration:line-through;"></span>
               </div>
               <div id="modal-bilhete-chip" style="display:inline-flex;align-items:center;gap:4px;background:#fff0f3;border-radius:4px;padding:3px 8px;">
-                <img src="/uploads/bilhete.png?v=2" style="height:11px;width:auto;display:block;">
+                <img loading="lazy" decoding="async" src="/uploads/bilhete.png?v=2" style="height:11px;width:auto;display:block;">
                 <span id="modal-bilhete-text" style="color:#fe2d55;font-size:11px;font-weight:700;">Desconto exclusivo</span>
               </div>
             </div>
           </div>
           <div id="modal-oferta-banner" style="display:none;margin-bottom:12px;">
             <span class="oferta-badge-wrap" style="display:inline-flex;align-items:center;border-radius:4px;overflow:hidden;flex-shrink:0;height:20px;background:#e8562a;">
-              <img src="/uploads/oferta-relamapago.png?v=2" style="height:20px;width:auto;display:block;">
+              <img loading="lazy" decoding="async" src="/uploads/oferta-relamapago.png?v=2" style="height:20px;width:auto;display:block;">
               <span class="oferta-timer" style="background:#fff0e8;color:#e8562a;font-size:11px;font-weight:800;padding:0 8px;height:100%;display:flex;align-items:center;">00:20:00</span>
             </span>
           </div>
@@ -1215,7 +1220,7 @@
 
         <div class="prot-item">
           <div class="prot-item-header">
-            <div class="prot-item-icon"><img src="/uploads/devolucao.png?v=1" style="width:40px;height:40px;object-fit:contain;"></div>
+            <div class="prot-item-icon"><img loading="lazy" decoding="async" src="/uploads/devolucao.png?v=1" style="width:40px;height:40px;object-fit:contain;"></div>
             <div class="prot-item-title">Devoluções gratuitas em 30 dias</div>
           </div>
           <p class="prot-item-desc">Devolução gratuita em até 30 dias após o recebimento do seu produto. Os Termos e Condições se aplicam.</p>
@@ -1226,15 +1231,15 @@
 
         <div class="prot-item">
           <div class="prot-item-header">
-            <div class="prot-item-icon"><img src="/uploads/pagamentoseguro.png?v=1" style="width:40px;height:40px;object-fit:contain;"></div>
+            <div class="prot-item-icon"><img loading="lazy" decoding="async" src="/uploads/pagamentoseguro.png?v=1" style="width:40px;height:40px;object-fit:contain;"></div>
             <div class="prot-item-title">Pagamento seguro</div>
           </div>
           <p class="prot-item-desc">Para garantir a segurança, as informações do seu cartão são criptografadas e protegidas contra acesso não autorizado.</p>
           <p class="prot-item-desc">Não vendemos, alugamos ou cedemos suas informações pessoais a terceiros para fins de marketing.</p>
           <p class="prot-item-desc" style="margin-bottom:8px;">Aceitamos pagamento de:</p>
-          <img src="/uploads/primeiralinhacartao.png?v=1" style="width:100%;max-width:340px;display:block;margin-bottom:14px;">
+          <img loading="lazy" decoding="async" src="/uploads/primeiralinhacartao.png?v=1" style="width:100%;max-width:340px;display:block;margin-bottom:14px;">
           <p class="prot-item-desc" style="margin-bottom:8px;">Certificações de segurança:</p>
-          <img src="/uploads/segundalinha.png?v=1" style="width:190px;display:block;margin-bottom:14px;">
+          <img loading="lazy" decoding="async" src="/uploads/segundalinha.png?v=1" style="width:190px;display:block;margin-bottom:14px;">
           <p class="prot-item-desc">Para obter informações sobre como usamos seus dados pessoais, consulte nossa <span style="color:#009a85;">Privacy Policy</span>.</p>
         </div>
 
@@ -1242,7 +1247,7 @@
 
         <div class="prot-item">
           <div class="prot-item-header">
-            <div class="prot-item-icon"><img src="/uploads/reembolso.png?v=1" style="width:40px;height:40px;object-fit:contain;"></div>
+            <div class="prot-item-icon"><img loading="lazy" decoding="async" src="/uploads/reembolso.png?v=1" style="width:40px;height:40px;object-fit:contain;"></div>
             <div class="prot-item-title">Reembolso se algo der errado</div>
           </div>
           <p class="prot-item-desc">Se o seu pedido for perdido ou danificado durante o transporte antes de chegar, reembolsaremos automaticamente o seu dinheiro. Você não precisa fazer nada.</p>
@@ -1252,7 +1257,7 @@
 
         <div class="prot-item" style="margin-bottom:0;">
           <div class="prot-item-header">
-            <div class="prot-item-icon"><img src="/uploads/pedidonaoenviado.png?v=1" style="width:40px;height:40px;object-fit:contain;"></div>
+            <div class="prot-item-icon"><img loading="lazy" decoding="async" src="/uploads/pedidonaoenviado.png?v=1" style="width:40px;height:40px;object-fit:contain;"></div>
             <div class="prot-item-title">Se o seu pedido não for enviado no prazo</div>
           </div>
           <p class="prot-item-desc">Você não precisa fazer nada. Se ele não for despachado em até 7 dias úteis, cancelaremos o seu pedido e reembolsaremos automaticamente o seu dinheiro.</p>
