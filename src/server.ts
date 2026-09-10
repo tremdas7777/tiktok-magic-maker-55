@@ -48,6 +48,10 @@ export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     setRuntimeEnv(env);
     try {
+      const cf = (await import("cloudflare:workers").catch(() => null)) as
+        | { env?: unknown }
+        | null;
+      if (cf?.env) setRuntimeEnv(cf.env);
       const funnelResponse = await handleFunnelRequest(request);
       if (funnelResponse) return funnelResponse;
 
