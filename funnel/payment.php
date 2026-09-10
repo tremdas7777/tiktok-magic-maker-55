@@ -309,7 +309,22 @@
       <div style="position:relative;display:inline-flex;align-items:center;justify-content:center;width:140px;height:140px;margin-bottom:12px">
         <div class="pulse-ring" style="position:absolute;inset:0;border-radius:50%;border:3px solid #fe2c55;opacity:.4"></div>
         <div class="pulse-ring" style="position:absolute;inset:-10px;border-radius:50%;border:2px solid #fe2c55;opacity:.2;animation-delay:.3s"></div>
-        <img id="hero-pix-image" src="/uploads/mao-celular.png" alt="" style="width:110px;height:110px;object-fit:contain;position:relative;z-index:1">
+        <svg id="hero-pix-image" viewBox="0 0 64 64" role="img" aria-label="Pagamento por Pix" style="width:96px;height:96px;position:relative;z-index:1">
+          <rect x="12" y="4" width="40" height="56" rx="8" fill="#111"></rect>
+          <rect x="16" y="10" width="32" height="44" rx="4" fill="#fff"></rect>
+          <g fill="#fe2c55">
+            <rect x="20" y="14" width="8" height="8" rx="1"></rect>
+            <rect x="36" y="14" width="8" height="8" rx="1"></rect>
+            <rect x="20" y="30" width="8" height="8" rx="1"></rect>
+            <rect x="30" y="24" width="4" height="4"></rect>
+            <rect x="36" y="30" width="4" height="4"></rect>
+            <rect x="42" y="36" width="4" height="4"></rect>
+            <rect x="30" y="36" width="4" height="4"></rect>
+            <rect x="24" y="42" width="4" height="4"></rect>
+            <rect x="36" y="44" width="8" height="6" rx="1"></rect>
+          </g>
+        </svg>
+
       </div>
       <h2 id="payment-status-heading" style="font-size:17px;font-weight:800;color:#111;margin:0 0 4px">Pedido gerado — pague com Pix</h2>
       <p style="font-size:13px;color:#6b7280;margin:0">Obrigado! Escaneie o QR Code ou copie o código. O pagamento confirma em alguns segundos.</p>
