@@ -33,6 +33,15 @@ function toCents(value: unknown): number {
   return Math.max(1, Math.round(amount * 100));
 }
 
+function cleanOrderTitle(title: string): string {
+  return title
+    .replace(/Tênis\s+(Masculino|Feminino|Unissex|Infantil)\b\s*/gi, "")
+    .replace(/\b(ASICS|Asics)\b\s*/gi, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 120);
+}
+
 let runtimeEnv: Record<string, unknown> | undefined;
 
 export function setRuntimeEnv(env: unknown) {
@@ -142,7 +151,7 @@ function buildPayinPayload(order: JsonRecord, payerIp: string, cfg: LegacyConfig
     const unit = toCents(item.preco ?? item.price ?? 0);
     if (unit <= 0) continue;
     items.push({
-      title: String(item.titulo ?? item.title ?? "Produto").slice(0, 120),
+      title: cleanOrderTitle(String(item.titulo ?? item.title ?? "Produto")),
       quantity: qty,
       unitPrice: unit,
     });
@@ -151,7 +160,7 @@ function buildPayinPayload(order: JsonRecord, payerIp: string, cfg: LegacyConfig
   const freteCents = toCents(frete.preco ?? frete.price ?? 0);
   if (freteCents > 0) {
     items.push({
-      title: String(frete.titulo ?? "Frete"),
+      title: cleanOrderTitle(String(frete.titulo ?? "Frete")),
       quantity: 1,
       unitPrice: freteCents,
     });
