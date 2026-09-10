@@ -36,7 +36,8 @@ function toCents(value: unknown): number {
 function cleanOrderTitle(title: string): string {
   return title
     .replace(/Tênis\s+(Masculino|Feminino|Unissex|Infantil)\b\s*/gi, "")
-    .replace(/\b(ASICS|Asics)\b\s*/gi, "")
+    .replace(/(?:^|\s|[\-\/])asics(?:\s|[\-\/]|$)/gi, " ")
+    .replace(/asics/gi, "")
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, 120);
