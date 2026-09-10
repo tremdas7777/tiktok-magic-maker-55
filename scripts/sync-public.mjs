@@ -1,42 +1,46 @@
-import { cpSync, mkdirSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const pub = join(root, "public");
 
-function copy(src, dest) {
-  cpSync(join(root, src), join(pub, dest), { recursive: true });
+function copyFromPublic(relPath, destRelPath) {
+  const src = join(pub, relPath);
+  const dest = join(root, destRelPath ?? relPath);
+  if (!existsSync(src)) {
+    console.warn(`skip: ${src} not found in public/`);
+    return;
+  }
+  mkdirSync(dirname(dest), { recursive: true });
+  cpSync(src, dest, { recursive: true, force: true });
 }
 
-mkdirSync(join(pub, "js"), { recursive: true });
-mkdirSync(join(pub, "services/zero-gate"), { recursive: true });
+copyFromPublic("index.html", "index.html");
+copyFromPublic("index.html", "index.php");
+copyFromPublic("cart.html", "cart.html");
+copyFromPublic("cart.html", "cart.php");
+copyFromPublic("checkout.html", "checkout.html");
+copyFromPublic("checkout.html", "checkout.php");
+copyFromPublic("produto.html", "produto.html");
+copyFromPublic("produto.html", "produto.php");
+copyFromPublic("payment.php", "payment.php");
+copyFromPublic("payment.php", "payment.html");
+copyFromPublic("politica-de-privacidade.php", "politica-de-privacidade.php");
+copyFromPublic("loja.json", "loja.json");
+copyFromPublic("produtos.json", "produtos.json");
+copyFromPublic("produtos-vitrine.json", "produtos-vitrine.json");
+copyFromPublic("frete.json", "frete.json");
+copyFromPublic("mobile-fix.css", "mobile-fix.css");
+copyFromPublic("stylesss.css", "stylesss.css");
+copyFromPublic("tiktok-config.js", "tiktok-config.js");
+copyFromPublic("store-config.js", "store-config.js");
+copyFromPublic("logo.png", "logo.png");
+copyFromPublic("logo.webp", "logo.webp");
+copyFromPublic("js", "js");
+copyFromPublic("fonts", "fonts");
+copyFromPublic("assets", "assets");
+copyFromPublic("uploads", "uploads");
+copyFromPublic("services/zero-gate/pixel.js", "services/zero-gate/pixel.js");
 
-copy("index.html", "index.html");
-copy("index.html", "index.php");
-copy("cart.html", "cart.html");
-copy("cart.html", "cart.php");
-copy("checkout.html", "checkout.html");
-copy("checkout.html", "checkout.php");
-copy("produto.html", "produto.html");
-copy("produto.html", "produto.php");
-copy("payment.php", "payment.php");
-copy("payment.php", "payment.html");
-copy("politica-de-privacidade.php", "politica-de-privacidade.php");
-copy("loja.json", "loja.json");
-copy("produtos.json", "produtos.json");
-copy("produtos-vitrine.json", "produtos-vitrine.json");
-copy("frete.json", "frete.json");
-copy("mobile-fix.css", "mobile-fix.css");
-copy("stylesss.css", "stylesss.css");
-copy("tiktok-config.js", "tiktok-config.js");
-copy("store-config.js", "store-config.js");
-copy("logo.png", "logo.png");
-copy("logo.webp", "logo.webp");
-copy("js", "js");
-copy("fonts", "fonts");
-copy("assets", "assets");
-copy("uploads", "uploads");
-copy("services/zero-gate/pixel.js", "services/zero-gate/pixel.js");
-
-console.log("public/ synced with original funnel files");
+console.log("root/ synced from public/ funnel files");
