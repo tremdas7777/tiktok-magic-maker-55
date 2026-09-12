@@ -461,3 +461,306 @@ export const adminTestTikTokEvent = createServerFn({ method: "POST" }).handler(a
   });
   return { ok: true as const, message: "Evento de teste enviado ao TikTok." };
 });
+
+/* ------------------------------------------------------------- analytics */
+
+export const adminAnalytics = createServerFn({ method: "POST" })
+  .inputValidator((data: { days?: number }) => ({ days: Math.min(90, Math.max(1, data?.days ?? 7)) }))
+  .handler(async ({ data }) => {
+    await requireAdmin();
+    const client = await db();
+    const since = sinceIso(data.days);
+    const prevSince = sinceIso(data.days * 2);
+
+    const [ordersRes, eventsRes] = await Promise.all([
+      client
+        .from("shop_orders")
+        .select("status, amount_cents, created_at, paid_at, city, state, utm, items")
+        .gte("created_at", prevSince)
+        .limit(10000),
+      client
+        .from("shop_events")
+        .select("session_id, event_type, path, created_at, device, country, city, utm, value_cents")
+        .gte("created_at", prevSince)
+        .limit(40000),
+    ]);
+
+    const allOrders = (ordersRes.data ?? []) as AnyRecord[];
+    const allEvents = (eventsRes.data ?? []) as AnyRecord[];
+    const inCurrent = (row: AnyRecord) => String(row.created_at) >= since;
+
+    const orders = allOrders.filter(inCurrent);
+    const prevOrders = allOrders.filter((o) => !inCurrent(o));
+    const events = allEvents.filter(inCurrent);
+    const prevEvents = allEvents.filter((e) => !inCurrent(e));
+
+    const paid = orders.filter((o) => o.status === "paid");
+    const prevPaid = prevOrders.filter((o) => o.status === "paid");
+    const revenue = paid.reduce((sum, o) => sum + (o.amount_cents ?? 0), 0) / 100;
+    const prevRevenue = prevPaid.reduce((sum, o) => sum + (o.amount_cents ?? 0), 0) / 100;
+    const sessions = new Set(events.filter((e) => e.session_id).map((e) => e.session_id)).size;
+    const prevSessions = new Set(prevEvents.filter((e) => e.session_id).map((e) => e.session_id)).size;
+
+    const growth = (now: number, before: number) =>
+      before === 0 ? (now > 0 ? 100 : 0) : ((now - before) / before) * 100;
+
+    /* hourly performance */
+    const hours = Array.from({ length: 24 }, (_, hour) => ({
+      hour,
+      sessions: 0,
+      pix: 0,
+      paid: 0,
+      revenue: 0,
+    }));
+    const hourSessions: Array<Set<string>> = Array.from({ length: 24 }, () => new Set<string>());
+    for (const event of events) {
+      const hour = new Date(event.created_at).getHours();
+      if (event.session_id) hourSessions[hour]?.add(String(event.session_id));
+    }
+    for (const order of orders) {
+      const bucket = hours[new Date(order.created_at).getHours()];
+      if (!bucket) continue;
+      bucket.pix += 1;
+      if (order.status === "paid") {
+        bucket.paid += 1;
+        bucket.revenue += (order.amount_cents ?? 0) / 100;
+      }
+    }
+    hours.forEach((bucket, index) => {
+      bucket.sessions = hourSessions[index]?.size ?? 0;
+    });
+
+    /* weekday performance */
+    const weekdayNames = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+    const weekdays = weekdayNames.map((label) => ({ label, pix: 0, paid: 0, revenue: 0 }));
+    for (const order of orders) {
+      const bucket = weekdays[new Date(order.created_at).getDay()];
+      if (!bucket) continue;
+      bucket.pix += 1;
+      if (order.status === "paid") {
+        bucket.paid += 1;
+        bucket.revenue += (order.amount_cents ?? 0) / 100;
+      }
+    }
+
+    /* funnel with drop-off */
+    const sessionsBy = (type: string) =>
+      new Set(events.filter((e) => e.event_type === type && e.session_id).map((e) => e.session_id))
+        .size;
+    const rawFunnel = [
+      { label: "Visitantes", value: sessions },
+      { label: "Viu produto", value: sessionsBy("product_view") },
+      { label: "Carrinho", value: sessionsBy("add_to_cart") },
+      { label: "Checkout", value: sessionsBy("checkout_view") },
+      { label: "Pix gerado", value: orders.length },
+      { label: "Pago", value: paid.length },
+    ];
+    const funnel = rawFunnel.map((step, index) => {
+      const previous = index === 0 ? step.value : (rawFunnel[index - 1]?.value ?? 0);
+      const first = rawFunnel[0]?.value ?? 0;
+      return {
+        label: step.label,
+        value: step.value,
+        stepRate: previous ? (step.value / previous) * 100 : 0,
+        totalRate: first ? (step.value / first) * 100 : 0,
+        lost: Math.max(0, previous - step.value),
+      };
+    });
+
+    /* utm breakdowns with revenue attribution */
+    const attribution = (field: string) => {
+      const map = new Map<string, { sessions: Set<string>; pix: number; paid: number; revenue: number }>();
+      const get = (key: string) => {
+        const existing = map.get(key);
+        if (existing) return existing;
+        const created = { sessions: new Set<string>(), pix: 0, paid: 0, revenue: 0 };
+        map.set(key, created);
+        return created;
+      };
+      for (const event of events) {
+        if (!event.session_id) continue;
+        get(String((event.utm as AnyRecord)?.[field] ?? "direto")).sessions.add(String(event.session_id));
+      }
+      for (const order of orders) {
+        const entry = get(String((order.utm as AnyRecord)?.[field] ?? "direto"));
+        entry.pix += 1;
+        if (order.status === "paid") {
+          entry.paid += 1;
+          entry.revenue += (order.amount_cents ?? 0) / 100;
+        }
+      }
+      return Array.from(map.entries())
+        .map(([label, value]) => ({
+          label,
+          sessions: value.sessions.size,
+          pix: value.pix,
+          paid: value.paid,
+          revenue: value.revenue,
+          conversion: value.sessions.size ? (value.paid / value.sessions.size) * 100 : 0,
+        }))
+        .sort((a, b) => b.revenue - a.revenue || b.sessions - a.sessions)
+        .slice(0, 12);
+    };
+
+    /* top pages */
+    const pageMap = new Map<string, { views: number; sessions: Set<string> }>();
+    for (const event of events) {
+      if (event.event_type !== "pageview") continue;
+      const key = String(event.path ?? "/").split("?")[0] || "/";
+      const entry = pageMap.get(key) ?? { views: 0, sessions: new Set<string>() };
+      entry.views += 1;
+      if (event.session_id) entry.sessions.add(String(event.session_id));
+      pageMap.set(key, entry);
+    }
+    const topPages = Array.from(pageMap.entries())
+      .map(([label, value]) => ({ label, views: value.views, sessions: value.sessions.size }))
+      .sort((a, b) => b.views - a.views)
+      .slice(0, 12);
+
+    /* places */
+    const placeMap = new Map<string, { paid: number; revenue: number; pix: number }>();
+    for (const order of orders) {
+      const key = [order.city, order.state].filter(Boolean).join(" / ") || "não informado";
+      const entry = placeMap.get(key) ?? { paid: 0, revenue: 0, pix: 0 };
+      entry.pix += 1;
+      if (order.status === "paid") {
+        entry.paid += 1;
+        entry.revenue += (order.amount_cents ?? 0) / 100;
+      }
+      placeMap.set(key, entry);
+    }
+    const places = Array.from(placeMap.entries())
+      .map(([label, value]) => ({ label, ...value }))
+      .sort((a, b) => b.revenue - a.revenue || b.pix - a.pix)
+      .slice(0, 12);
+
+    /* time to payment */
+    const payTimes = paid
+      .filter((o) => o.paid_at)
+      .map((o) => (new Date(o.paid_at).getTime() - new Date(o.created_at).getTime()) / 60000)
+      .filter((minutes) => minutes >= 0 && minutes < 60 * 24)
+      .sort((a, b) => a - b);
+    const median = payTimes.length ? payTimes[Math.floor(payTimes.length / 2)] ?? 0 : 0;
+    const average = payTimes.length ? payTimes.reduce((s, v) => s + v, 0) / payTimes.length : 0;
+
+    /* abandonment */
+    const checkoutSessions = new Set(
+      events.filter((e) => e.event_type === "checkout_view" && e.session_id).map((e) => String(e.session_id)),
+    );
+    const pixSessions = new Set(
+      events.filter((e) => e.event_type === "purchase" && e.session_id).map((e) => String(e.session_id)),
+    );
+    const cartSessions = new Set(
+      events.filter((e) => e.event_type === "add_to_cart" && e.session_id).map((e) => String(e.session_id)),
+    );
+
+    /* ticket buckets */
+    const buckets = [
+      { label: "até R$ 150", min: 0, max: 15000 },
+      { label: "R$ 150–250", min: 15000, max: 25000 },
+      { label: "R$ 250–400", min: 25000, max: 40000 },
+      { label: "acima de R$ 400", min: 40000, max: Infinity },
+    ].map((bucket) => ({
+      label: bucket.label,
+      paid: paid.filter((o) => (o.amount_cents ?? 0) >= bucket.min && (o.amount_cents ?? 0) < bucket.max)
+        .length,
+      revenue:
+        paid
+          .filter((o) => (o.amount_cents ?? 0) >= bucket.min && (o.amount_cents ?? 0) < bucket.max)
+          .reduce((sum, o) => sum + (o.amount_cents ?? 0), 0) / 100,
+    }));
+
+    return {
+      days: data.days,
+      comparison: {
+        revenue: { now: revenue, before: prevRevenue, growth: growth(revenue, prevRevenue) },
+        paid: { now: paid.length, before: prevPaid.length, growth: growth(paid.length, prevPaid.length) },
+        pix: { now: orders.length, before: prevOrders.length, growth: growth(orders.length, prevOrders.length) },
+        sessions: { now: sessions, before: prevSessions, growth: growth(sessions, prevSessions) },
+      },
+      hours,
+      weekdays,
+      funnel,
+      sources: attribution("utm_source"),
+      campaigns: attribution("utm_campaign"),
+      mediums: attribution("utm_medium"),
+      topPages,
+      places,
+      payment: {
+        medianMinutes: median,
+        averageMinutes: average,
+        paidWithTime: payTimes.length,
+        pendingCount: orders.length - paid.length,
+        pendingValue: orders
+          .filter((o) => o.status !== "paid")
+          .reduce((sum, o) => sum + (o.amount_cents ?? 0), 0) / 100,
+      },
+      abandonment: {
+        cartSessions: cartSessions.size,
+        checkoutSessions: checkoutSessions.size,
+        purchasedSessions: pixSessions.size,
+        cartAbandonRate: cartSessions.size
+          ? ((cartSessions.size - checkoutSessions.size) / cartSessions.size) * 100
+          : 0,
+        checkoutAbandonRate: checkoutSessions.size
+          ? ((checkoutSessions.size - paid.length) / checkoutSessions.size) * 100
+          : 0,
+      },
+      ticketBuckets: buckets,
+    };
+  });
+
+/* ------------------------------------------------------- facebook / meta */
+
+export const adminGetMetaSettings = createServerFn({ method: "POST" }).handler(async () => {
+  await requireAdmin();
+  const { getMetaSettings } = await import("./meta-tracking.server");
+  const settings = await getMetaSettings(true);
+  return {
+    pixelIds: settings.pixel_ids,
+    hasAccessToken: Boolean(settings.access_token),
+    testEventCode: settings.test_event_code,
+    serverEventsEnabled: settings.server_events_enabled,
+    trackPageview: settings.track_pageview,
+  };
+});
+
+export const adminSaveMetaSettings = createServerFn({ method: "POST" })
+  .inputValidator(
+    (data: {
+      pixelIds: string;
+      accessToken?: string;
+      testEventCode?: string;
+      serverEventsEnabled: boolean;
+      trackPageview: boolean;
+    }) => data,
+  )
+  .handler(async ({ data }) => {
+    await requireAdmin();
+    const { saveMetaSettings } = await import("./meta-tracking.server");
+    const pixelIds = String(data.pixelIds ?? "")
+      .split(/[\s,;]+/)
+      .map((id) => id.trim())
+      .filter(Boolean);
+    const patch: AnyRecord = {
+      pixel_ids: pixelIds,
+      test_event_code: String(data.testEventCode ?? ""),
+      server_events_enabled: data.serverEventsEnabled !== false,
+      track_pageview: data.trackPageview !== false,
+    };
+    const token = String(data.accessToken ?? "").trim();
+    if (token) patch.access_token = token;
+    const saved = await saveMetaSettings(patch);
+    return { ok: true as const, pixelIds: saved.pixel_ids, hasAccessToken: Boolean(saved.access_token) };
+  });
+
+export const adminTestMetaEvent = createServerFn({ method: "POST" }).handler(async () => {
+  await requireAdmin();
+  const { sendMetaServerEvent } = await import("./meta-tracking.server");
+  const result = await sendMetaServerEvent("ViewContent", {
+    value: 1,
+    referenceId: `teste-${Date.now()}`,
+    contents: [{ id: "teste", titulo: "Evento de teste", quantidade: 1, preco: 1 }],
+  });
+  return { ok: result.ok, message: result.message };
+});
