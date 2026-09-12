@@ -233,6 +233,22 @@ export async function markOrderPaid(payin: AnyRecord): Promise<void> {
       userAgent: "",
       contents: row.items ?? [],
     });
+
+    const utmRow = (row.utm ?? {}) as AnyRecord;
+    const { sendMetaServerEvent } = await import("./meta-tracking.server");
+    await sendMetaServerEvent("Purchase", {
+      value: (row.amount_cents ?? 0) / 100,
+      referenceId: row.reference_id,
+      email: row.customer_email ?? "",
+      phone: row.customer_phone ?? "",
+      firstName: row.customer_name ?? "",
+      city: row.city ?? "",
+      state: row.state ?? "",
+      fbc: String(utmRow.fbc ?? utmRow.fbclid ?? ""),
+      fbp: String(utmRow.fbp ?? ""),
+      contents: row.items ?? [],
+    });
+
   } catch (error) {
     console.error("markOrderPaid error", error);
   }
