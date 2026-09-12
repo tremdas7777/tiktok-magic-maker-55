@@ -346,7 +346,18 @@ export async function sendTikTokServerEvent(
 
 /* ------------------------------------------------------- generated scripts */
 
+/** Endereço legado que as páginas da loja consultam para descobrir o pixel. */
+export async function handleTikTokPixelLookup(): Promise<Response> {
+  const settings = await getTikTokSettings();
+  return json({
+    pixel_id: settings.pixel_ids[0] ?? "",
+    pixel_ids: settings.pixel_ids,
+    mark_as_paid: "sim",
+  });
+}
+
 export async function handleTikTokConfigJs(): Promise<Response> {
+
   const settings = await getTikTokSettings();
   const body = `/* generated */
 window.TIKTOK_PIXEL_IDS = ${JSON.stringify(settings.pixel_ids)};
