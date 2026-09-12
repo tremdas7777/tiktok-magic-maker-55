@@ -429,9 +429,13 @@ export function handleShopTrackJs(): Response {
   };
   // Mesmo event_id no navegador e no servidor => plataformas deduplicam.
   window.shopEventId = function(name){
-    var base = currentRef() || sid;
-    return base + '_' + String(name || '').toLowerCase();
+    var ev = String(name || '').toLowerCase();
+    // Compra/pagamento é por pedido; intenção de compra é por sessão.
+    var orderLevel = /purchase|completepayment|placeanorder/.test(ev);
+    var base = orderLevel ? (currentRef() || sid) : sid;
+    return base + '_' + ev;
   };
+
 
   var firedEvents = {};
   function onceKey(name){
