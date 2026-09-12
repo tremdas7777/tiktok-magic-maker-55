@@ -245,6 +245,8 @@ export async function markOrderPaid(payin: AnyRecord): Promise<void> {
       : await query.eq("transaction_id", transactionId);
     const row = data?.[0] as AnyRecord | undefined;
     if (!row || row.status === "paid") return;
+    // A conversão já foi enviada na criação do PIX (venda pendente conta).
+    const alreadySent = row.tiktok_purchase_sent === true;
 
     await db
       .from("shop_orders")
