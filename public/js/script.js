@@ -1,6 +1,6 @@
-// ========== SISTEMAS UTILITÃRIOS E UI ==========
+// ========== SISTEMAS UTILITÁRIOS E UI ==========
 
-// Toast reutilizÃ¡vel (mensagem flutuante)
+// Toast reutilizável (mensagem flutuante)
 function createToast(text) {
     const message = document.createElement('div');
     message.textContent = text;
@@ -33,12 +33,12 @@ function createToast(text) {
 
 // Mensagem de busca desabilitada (global)
 window.showSearchDisabledMessage = function () {
-    createToast('âŒ NÃ£o Ã© possÃ­vel realizar pesquisas nesta loja.');
+    createToast('âŒ Não é possível realizar pesquisas nesta loja.');
 };
 
-// ...lÃ³gica de carrinho removida...
+// ...lógica de carrinho removida...
 
-// Sticky tabs e navegaÃ§Ã£o de seÃ§Ãµes
+// Sticky tabs e navegação de seções
 var _descExpanded = false;
 function toggleDescricao() {
     var el   = document.getElementById('descricao-produto-dinamica');
@@ -114,7 +114,7 @@ function scrollToDescription() {
     const h3Elements = document.querySelectorAll('h3');
     let targetH3 = null;
     for (let i = 0; i < h3Elements.length; i++) {
-        if (h3Elements[i].textContent.trim() === 'DescriÃ§Ã£o do Produto') {
+        if (h3Elements[i].textContent.trim() === 'Descrição do Produto') {
             targetH3 = h3Elements[i]; break;
         }
     }
@@ -165,7 +165,7 @@ function changeImageInFullscreen(direction) {
     if (fullscreenImage) fullscreenImage.src = fotos[currentImageIndex];
 }
 
-// Countdown timer (oferta relÃ¢mpago)
+// Countdown timer (oferta relâmpago)
 function startCountdown() {
     let minutes = 5, seconds = 0;
     const timerElement = document.getElementById('countdown-timer');
@@ -186,7 +186,7 @@ function startCountdown() {
     }, 1000);
 }
 
-// Data de entrega dinÃ¢mica (5 dias Ãºteis)
+// Data de entrega dinâmica (5 dias úteis)
 function updateShippingDate() {
     const shippingDateElement = document.getElementById('shipping-date');
     if (!shippingDateElement) return;
@@ -198,10 +198,10 @@ function updateShippingDate() {
     }
     const day = deliveryDate.getDate();
     const month = deliveryDate.toLocaleString('pt-BR', { month: 'short' });
-    shippingDateElement.textContent = `Receba atÃ© ${day} de ${month}`;
+    shippingDateElement.textContent = `Receba até ${day} de ${month}`;
 }
 
-// Favoritos (coraÃ§Ã£o)
+// Favoritos (coração)
 let isSaved = false;
 function toggleSave() {
     isSaved = !isSaved;
@@ -219,7 +219,7 @@ function toggleSave() {
     }
 }
 
-// BotÃ£o voltar ao topo
+// Botão voltar ao topo
 function toggleBackToTop() {
     const backToTopButton = document.getElementById('back-to-top');
     if (!backToTopButton) return;
@@ -232,9 +232,9 @@ function scrollToTop() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// InicializaÃ§Ã£o Ãºnica ao carregar a pÃ¡gina
+// Inicialização única ao carregar a página
 document.addEventListener('DOMContentLoaded', function () {
-    // Toast de busca (se existir botÃ£o)
+    // Toast de busca (se existir botão)
     const btn = document.getElementById('search-btn');
     if (btn) {
         btn.addEventListener('click', function (e) {
@@ -243,7 +243,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
     // sticky tabs via scroll event (handleStickyTabs)
-    // BotÃ£o voltar ao topo
+    // Botão voltar ao topo
     const backToTopButton = document.getElementById('back-to-top');
     if (backToTopButton) backToTopButton.addEventListener('click', scrollToTop);
     // Inicializa sistemas
@@ -252,11 +252,11 @@ document.addEventListener('DOMContentLoaded', function () {
     updateShippingDate();
     handleStickyTabs();
     toggleBackToTop();
-    // ...lÃ³gica de carrinho removida...
+    // ...lógica de carrinho removida...
     window.addEventListener('scroll', handleStickyTabs, { passive: true });
     window.addEventListener('scroll', toggleBackToTop, { passive: true });
 });
-// ...lÃ³gica de carrinho removida...
+// ...lógica de carrinho removida...
 window.scrollToVisaoGeral = scrollToVisaoGeral;
 window.scrollToAvaliacoes = scrollToAvaliacoes;
 window.scrollToDescription = scrollToDescription;
@@ -289,7 +289,7 @@ window.scrollToTop = scrollToTop;
               titleEl.textContent = produto.titulo;
         }
 
-        // Images - carrossel dinÃ¢mico
+        // Images - carrossel dinâmico
         const FALLBACK_IMAGE = 'https://via.placeholder.com/600x600.png?text=Produto';
         let fotos = Array.isArray(produto.fotos) && produto.fotos.length ? produto.fotos.filter(Boolean) : [];
         let currentImgIdx = 0;
@@ -392,7 +392,7 @@ window.scrollToTop = scrollToTop;
                 const deltaX = touchEndX - touchStartX;
                 if (Math.abs(deltaX) > 40) {
                     if (deltaX < 0) {
-                        // Swipe left: prÃ³xima imagem
+                        // Swipe left: próxima imagem
                         showImage(currentImgIdx + 1);
                     } else if (deltaX > 0) {
                         // Swipe right: imagem anterior
@@ -473,7 +473,7 @@ window.scrollToTop = scrollToTop;
         showImage(0);
         scanImagesOnce();
 
-        // ...restante do cÃ³digo existente...
+        // ...restante do código existente...
         // Prices
         const priceCurrent = document.getElementById('price-current');
         if (priceCurrent) priceCurrent.textContent = formatCurrency(produto.preco);
@@ -496,18 +496,18 @@ window.scrollToTop = scrollToTop;
             }
         }
 
-        // Frete e Entrega (prazo dinÃ¢mico)
+        // Frete e Entrega (prazo dinâmico)
         const shippingDate = document.getElementById('shipping-date');
         const shippingFee = document.getElementById('shipping-fee');
         if (shippingDate) {
-            // Prazo dinÃ¢mico: exibe "Receba atÃ© X de mÃªs" com base na data de acesso
-            let prazo = 7; // padrÃ£o 7 dias
+            // Prazo dinâmico: exibe "Receba até X de mês" com base na data de acesso
+            let prazo = 7; // padrão 7 dias
             if (produto.entrega && !isNaN(Number(produto.entrega))) prazo = Number(produto.entrega);
             const hoje = new Date();
             const dataFinal = new Date(hoje.getTime() + prazo * 24 * 60 * 60 * 1000);
             const dia = dataFinal.getDate().toString().padStart(2, '0');
             const mes = (dataFinal.getMonth() + 1).toString().padStart(2, '0');
-            shippingDate.textContent = produto.frete ? produto.frete : `Receba atÃ© ${dia}/${mes}`;
+            shippingDate.textContent = produto.frete ? produto.frete : `Receba até ${dia}/${mes}`;
         }
         if (shippingFee) shippingFee.textContent = '';
 
@@ -515,7 +515,7 @@ window.scrollToTop = scrollToTop;
         const garantiaInfo = document.getElementById('garantia-produto');
         if (garantiaInfo) garantiaInfo.innerHTML = produto.garantia || 'Garantia de satisfação';
 
-        // DescriÃ§Ã£o, EspecificaÃ§Ãµes, Diferenciais
+        // Descrição, Especificações, Diferenciais
         const descDinamica = document.getElementById('descricao-produto-dinamica');
         if (descDinamica) {
             descDinamica.innerHTML = produto.descricao || '';
@@ -536,7 +536,7 @@ window.scrollToTop = scrollToTop;
         const diferenciais = document.getElementById('diferenciais-produto');
         if (diferenciais) diferenciais.innerHTML = (produto.diferenciais || '').replace(/\n/g, '<br>');
 
-        // Oferta relÃ¢mpago (timer)
+        // Oferta relâmpago (timer)
         const countdown = document.getElementById('countdown-timer');
         if (countdown && produto.oferta_termina_em) {
             function atualizarTimer() {
@@ -562,9 +562,9 @@ window.scrollToTop = scrollToTop;
             ratingText.textContent = `${notas ? notas.toFixed(1) : ''} (${comentariosCount}) ${vendidos} vendidos`;
         }
 
-        // Description â€” handled above via #descricao-produto-dinamica
+        // Description — handled above via #descricao-produto-dinamica
 
-        // Buy link â€” agora abre o modal de variaÃ§Ãµes em vez de ir direto para o checkout
+        // Buy link — agora abre o modal de variações em vez de ir direto para o checkout
         const buyBtn = document.getElementById('buy-now-btn');
         if (buyBtn) {
             buyBtn.setAttribute('href', 'javascript:void(0);');
@@ -720,9 +720,9 @@ window.scrollToTop = scrollToTop;
                 tempInput.select();
                 document.execCommand('copy');
                 document.body.removeChild(tempInput);
-                alert('Link copiado para a Ã¡rea de transferÃªncia!');
+                alert('Link copiado para a área de transferência!');
             }
-            // Fecha com animaÃ§Ã£o suave
+            // Fecha com animação suave
             closeShareSection();
         }
 
@@ -735,7 +735,7 @@ window.scrollToTop = scrollToTop;
 
 
         document.addEventListener('DOMContentLoaded', function () {
-            // InicializaÃ§Ã£o do modal de tela cheia (se existir)
+            // Inicialização do modal de tela cheia (se existir)
             const fullscreenContainer = document.getElementById('fullscreen-container');
             const fullscreenClose = document.getElementById('fullscreen-close');
 
