@@ -183,18 +183,23 @@ export const adminLive = createServerFn({ method: "POST" })
     const since = new Date(Date.now() - data.minutes * 60 * 1000).toISOString();
 
 
-  const [eventsRes, ordersRes] = await Promise.all([
+  const [eventsRes, ordersRes, windowOrdersRes] = await Promise.all([
     client
       .from("shop_events")
-      .select("session_id, event_type, path, product_title, created_at, device, country, utm, value_cents")
+      .select("session_id, event_type, path, product_title, created_at, device, country, city, utm, value_cents")
       .gte("created_at", since)
       .order("created_at", { ascending: false })
-      .limit(2000),
+      .limit(20000),
     client
       .from("shop_orders")
       .select("reference_id, status, amount_cents, customer_name, city, state, items, created_at, paid_at")
       .order("created_at", { ascending: false })
       .limit(15),
+    client
+      .from("shop_orders")
+      .select("status, amount_cents, created_at")
+      .gte("created_at", since)
+      .limit(5000),
   ]);
 
   const events = (eventsRes.data ?? []) as AnyRecord[];
@@ -207,6 +212,7 @@ export const adminLive = createServerFn({ method: "POST" })
       lastEvent: event.event_type,
       device: event.device ?? "?",
       country: event.country ?? "",
+      city: event.city ?? "",
       source: (event.utm as AnyRecord)?.utm_source ?? "direto",
       at: event.created_at,
     });
@@ -215,9 +221,25 @@ export const adminLive = createServerFn({ method: "POST" })
   const stage = (type: string) =>
     new Set(events.filter((e) => e.event_type === type && e.session_id).map((e) => e.session_id)).size;
 
+  const rank = (pick: (visitor: AnyRecord) => string) => {
+    const counts: Record<string, number> = {};
+    for (const visitor of visitors.values()) {
+      const key = pick(visitor) || "-";
+      counts[key] = (counts[key] ?? 0) + 1;
+    }
+    return Object.entries(counts)
+      .map(([label, value]) => ({ label, value }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 8);
+  };
+
+  const windowOrders = (windowOrdersRes.data ?? []) as AnyRecord[];
+  const windowPaid = windowOrders.filter((o) => o.status === "paid");
+
   return {
+    minutes: data.minutes,
     onlineNow: visitors.size,
-    visitors: Array.from(visitors.values()).slice(0, 60),
+    visitors: Array.from(visitors.values()).slice(0, 80),
     stages: {
       home: stage("pageview"),
       product: stage("product_view"),
@@ -225,7 +247,17 @@ export const adminLive = createServerFn({ method: "POST" })
       checkout: stage("checkout_view"),
       payment: stage("payment_view"),
     },
-    feed: events.slice(0, 40).map((e) => ({
+    window: {
+      pixCount: windowOrders.length,
+      paidCount: windowPaid.length,
+      revenue: windowPaid.reduce((sum, o) => sum + (o.amount_cents ?? 0), 0) / 100,
+      events: events.length,
+    },
+    topPages: rank((v) => String(v.path ?? "/")),
+    topSources: rank((v) => String(v.source ?? "direto")),
+    topDevices: rank((v) => String(v.device ?? "?")),
+    topPlaces: rank((v) => [v.city, v.country].filter(Boolean).join(" / ")),
+    feed: events.slice(0, 60).map((e) => ({
       type: e.event_type,
       path: e.path ?? "",
       title: e.product_title ?? "",
@@ -244,6 +276,7 @@ export const adminLive = createServerFn({ method: "POST" })
     })),
   };
 });
+
 
 export const adminTopProducts = createServerFn({ method: "POST" })
   .inputValidator((data: { days?: number }) => ({ days: Math.min(90, Math.max(1, data?.days ?? 30)) }))
