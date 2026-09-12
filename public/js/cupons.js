@@ -3,7 +3,7 @@
 
   var RULES = {
     ENVIO7: { type: 'free_shipping', minSubtotal: 59 },
-    DESC5: { type: 'fixed_discount', value: 5, minSubtotal: 80 }
+    DESC5: { type: 'percent_discount', value: 25, minSubtotal: 300 }
   };
 
   function getResgatados() {
@@ -60,7 +60,7 @@
     var freteGratis = false;
 
     if (resgatados.has('DESC5') && sub >= RULES.DESC5.minSubtotal) {
-      descontoCupom = RULES.DESC5.value;
+      descontoCupom = Number(((sub * RULES.DESC5.value) / 100).toFixed(2));
     }
     if (resgatados.has('ENVIO7') && sub >= RULES.ENVIO7.minSubtotal) {
       freteGratis = true;
