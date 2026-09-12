@@ -46,9 +46,13 @@ type TabKey = "live" | "vendas" | "produtos" | "pixel";
 
 function AdminPage() {
   const sessionFn = useServerFn(adminSessionState);
-  const session = useQuery({ queryKey: ["admin-session"], queryFn: () => sessionFn({}) });
+  const session = useQuery({
+    queryKey: ["admin-session"],
+    queryFn: () => sessionFn({}),
+    retry: false,
+  });
 
-  if (session.isLoading) {
+  if (session.isPending) {
     return <Shell><p className="text-sm text-zinc-400">Carregando…</p></Shell>;
   }
   if (!session.data?.unlocked) return <LoginScreen />;

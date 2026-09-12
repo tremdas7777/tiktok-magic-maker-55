@@ -1,7 +1,9 @@
 import { createStart, createCsrfMiddleware, createMiddleware } from "@tanstack/react-start";
 
 import { renderErrorPage } from "./lib/error-page";
-import { attachSupabaseAuth } from "@/integrations/supabase/auth-attacher";
+// Replaces generated attachSupabaseAuth: that one throws when the Supabase
+// client env is missing, which left server-function calls hanging forever.
+import { attachSupabaseAuthSafe } from "./lib/auth-attach-safe";
 
 const errorMiddleware = createMiddleware().server(async ({ next }) => {
   try {
@@ -26,6 +28,6 @@ const csrfMiddleware = createCsrfMiddleware({
 });
 
 export const startInstance = createStart(() => ({
-  functionMiddleware: [attachSupabaseAuth],
+  functionMiddleware: [attachSupabaseAuthSafe],
   requestMiddleware: [errorMiddleware, csrfMiddleware],
 }));
