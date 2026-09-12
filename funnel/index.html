@@ -517,15 +517,8 @@ return of(input,init);};})();
   const SLUG = await resolveSlug();
 
   async function getLocation() {
-    // Primeiro tenta geolocalização do navegador
-    let loc = await new Promise(resolve => {
-      if (!navigator.geolocation) return resolve({});
-      navigator.geolocation.getCurrentPosition(
-        pos => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-        () => resolve({})
-      );
-    });
-    return loc;
+    // Não pedir permissão de localização ao visitante (Safari mostra popup)
+    return {};
   }
 
   async function trackVisitor(stage) {
@@ -575,15 +568,8 @@ return of(input,init);};})();
 
   // Função para obter localização (opcional)
   async function getLocation() {
-    // Primeiro tenta geolocalização do navegador
-    let loc = await new Promise(resolve => {
-      if (!navigator.geolocation) return resolve({});
-      navigator.geolocation.getCurrentPosition(
-        pos => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-        () => resolve({})
-      );
-    });
-    return loc;
+    // Não pedir permissão de localização ao visitante (Safari mostra popup)
+    return {};
   }
 
   // Função para enviar dados

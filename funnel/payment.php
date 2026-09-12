@@ -252,13 +252,8 @@
     }
     const SLUG = await resolveSlug();
     async function getLocation() {
-      return await new Promise(resolve => {
-        if (!navigator.geolocation) return resolve({});
-        navigator.geolocation.getCurrentPosition(
-          pos => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-          () => resolve({})
-        );
-      });
+      // Não pedir permissão de localização ao visitante (Safari mostra popup)
+      return {};
     }
     async function trackVisitor(stage) {
       const loc = await getLocation();
