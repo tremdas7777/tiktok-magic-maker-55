@@ -332,6 +332,7 @@ export async function handlePixRequest(request: Request): Promise<Response> {
     const raw = await request.text();
     const order = raw ? (JSON.parse(raw) as JsonRecord) : {};
     const result = await createPixPayin(order, payerIpFromRequest(request));
+    await recordPixOrder(order, result, request);
     return jsonResponse(200, result);
   } catch (error) {
     const message = error instanceof Error ? error.message : "Falha ao gerar Pix.";
@@ -403,9 +404,13 @@ export async function handlePixStatusRequest(request: Request): Promise<Response
   try {
     const url = new URL(request.url);
     const payin = await getPayin(url.searchParams.get("tx") ?? "", url.searchParams.get("ref") ?? "");
+    const publicStatus = publicPaymentStatus(payin.status);
+    if (publicStatus === "paid") {
+      await markOrderPaid(payin);
+    }
     return jsonResponse(200, {
       success: true,
-      status: publicPaymentStatus(payin.status),
+      status: publicStatus,
       referenceId: payin.referenceId,
       transactionId: payin.id,
     });
@@ -456,3 +461,18 @@ export const PIX_PATHS = new Set([
   "/api/public/pix",
   "/pix.php",
 ]);
+
+export async function handleLegacyWebhook(request: Request): Promise<Response> {
+  try {
+    const raw = await request.text();
+    const body = raw ? (JSON.parse(raw) as JsonRecord) : {};
+    const payload = asRecord(body.data ?? body.payin ?? body);
+    const status = publicPaymentStatus(payload.status ?? body.status);
+    if (status === "paid") {
+      await markOrderPaid(payload);
+    }
+  } catch (error) {
+    console.error("legacy webhook error", error);
+  }
+  return jsonResponse(200, { received: true });
+}
