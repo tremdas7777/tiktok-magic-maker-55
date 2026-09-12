@@ -6,6 +6,7 @@ import {
   handlePixStatusRequest,
   PIX_PATHS,
 } from "./legacy-pix.server";
+import { handleMetaPixelJs } from "./meta-tracking.server";
 import { handleShopTrackJs, handleTikTokConfigJs, handleTrackRequest } from "./shop-tracking.server";
 
 const PAGES: Record<string, string | undefined> = {
@@ -23,7 +24,8 @@ const PAGES: Record<string, string | undefined> = {
   "/politica-de-privacidade.php": FUNNEL_FILES["politica-de-privacidade.php"],
 };
 
-const TRACK_SNIPPET = '<script src="/shop-track.js" defer></script>';
+const TRACK_SNIPPET =
+  '<script src="/shop-track.js" defer></script>\n<script src="/meta-pixel.js" defer></script>';
 
 function withTracking(html: string): string {
   if (html.includes(TRACK_SNIPPET)) return html;
@@ -59,6 +61,10 @@ export async function handleFunnelRequest(request: Request): Promise<Response | 
 
   if (request.method === "GET" && pathname === "/tiktok-config.js") {
     return handleTikTokConfigJs();
+  }
+
+  if (request.method === "GET" && pathname === "/meta-pixel.js") {
+    return handleMetaPixelJs();
   }
 
   if (request.method === "GET" && pathname === "/shop-track.js") {
