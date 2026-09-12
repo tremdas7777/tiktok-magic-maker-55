@@ -272,6 +272,8 @@ export async function sendTikTokServerEvent(
     email?: string;
     phone?: string;
     clickId?: string;
+    eventId?: string;
+
     userAgent?: string;
     contents?: AnyRecord[];
   },
@@ -297,7 +299,7 @@ export async function sendTikTokServerEvent(
       {
         event: eventName,
         event_time: Math.floor(Date.now() / 1000),
-        event_id: `${input.referenceId}_${eventName.toLowerCase()}`,
+        event_id: input.eventId || `${input.referenceId}_${eventName.toLowerCase()}`,
         user,
         properties: {
           currency: "BRL",

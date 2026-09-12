@@ -81,6 +81,8 @@ export async function sendMetaServerEvent(
   input: {
     value: number;
     referenceId: string;
+    eventId?: string;
+
     email?: string;
     phone?: string;
     firstName?: string;
@@ -120,7 +122,7 @@ export async function sendMetaServerEvent(
       {
         event_name: eventName,
         event_time: Math.floor(Date.now() / 1000),
-        event_id: `${input.referenceId}_${eventName.toLowerCase()}`,
+        event_id: input.eventId || `${input.referenceId}_${eventName.toLowerCase()}`,
         action_source: "website",
         ...(input.eventSourceUrl ? { event_source_url: input.eventSourceUrl } : {}),
         user_data: user,
