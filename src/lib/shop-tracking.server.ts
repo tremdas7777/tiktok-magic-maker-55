@@ -399,6 +399,22 @@ export function handleShopTrackJs(): Response {
     else clickId = sessionStorage.getItem('_shop_ttclid') || '';
   } catch (e) {}
 
+  // Facebook click/browser ids so server-side Purchase events match the ad click.
+  try {
+    var fbclid = qp('fbclid');
+    if (fbclid) {
+      utm.fbclid = fbclid;
+      utm.fbc = 'fb.1.' + Date.now() + '.' + fbclid;
+      sessionStorage.setItem('_shop_fbc', utm.fbc);
+    } else {
+      var savedFbc = sessionStorage.getItem('_shop_fbc') || (document.cookie.match(/_fbc=([^;]+)/) || [])[1] || '';
+      if (savedFbc) utm.fbc = savedFbc;
+    }
+    var fbp = (document.cookie.match(/_fbp=([^;]+)/) || [])[1] || '';
+    if (fbp) utm.fbp = fbp;
+  } catch (e) {}
+
+
   function send(type, extra){
     var payload = Object.assign({
       session_id: sid,
