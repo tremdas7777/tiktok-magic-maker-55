@@ -125,6 +125,8 @@ export async function recordPixOrder(
     const carrinho = Array.isArray(order?.carrinho) ? order.carrinho : [];
     const url = new URL(request.url);
 
+    // Marca a venda já na criação do PIX (pendente): a conversão é enviada
+    // para TikTok/Meta aqui, e markOrderPaid não reenvia ao confirmar.
     await shopDb()
       .from("shop_orders")
       .upsert(
@@ -132,6 +134,7 @@ export async function recordPixOrder(
           reference_id: String(result.referenceId ?? ""),
           transaction_id: result.transactionId ? String(result.transactionId) : null,
           status: "pending",
+          tiktok_purchase_sent: true,
           amount_cents: Math.round(Number(order?.valor ?? order?.total ?? 0) * 100) || 0,
           customer_name: String(comprador.nome ?? "").slice(0, 200) || null,
           customer_email: String(comprador.email ?? "").slice(0, 200) || null,
