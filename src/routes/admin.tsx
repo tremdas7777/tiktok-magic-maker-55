@@ -1,0 +1,728 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import { useState } from "react";
+
+import {
+  adminCheckOrder,
+  adminGetSettings,
+  adminLive,
+  adminLogin,
+  adminLogout,
+  adminOrders,
+  adminOverview,
+  adminSaveSettings,
+  adminSessionState,
+  adminTestTikTokEvent,
+  adminTopProducts,
+} from "@/lib/admin.functions";
+
+export const Route = createFileRoute("/admin")({
+  ssr: false,
+  head: () => ({
+    meta: [
+      { title: "Painel da Loja | Vendas, visitantes e pixel" },
+      {
+        name: "description",
+        content:
+          "Painel interno da loja: visitantes ao vivo, pedidos Pix, produtos mais vendidos e configuração do pixel do TikTok.",
+      },
+      { name: "robots", content: "noindex, nofollow" },
+      { property: "og:title", content: "Painel da Loja" },
+      { property: "og:description", content: "Visitantes ao vivo, pedidos Pix e produtos mais vendidos." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
+  component: AdminPage,
+});
+
+const currency = (value: number) =>
+  value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+const time = (value?: string | null) =>
+  value ? new Date(value).toLocaleString("pt-BR", { hour12: false }) : "-";
+
+type TabKey = "live" | "vendas" | "produtos" | "pixel";
+
+function AdminPage() {
+  const sessionFn = useServerFn(adminSessionState);
+  const session = useQuery({ queryKey: ["admin-session"], queryFn: () => sessionFn({}) });
+
+  if (session.isLoading) {
+    return <Shell><p className="text-sm text-zinc-400">Carregando…</p></Shell>;
+  }
+  if (!session.data?.unlocked) return <LoginScreen />;
+  return <Dashboard />;
+}
+
+function Shell({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen bg-zinc-950 px-4 py-8 text-zinc-100">
+      <div className="mx-auto w-full max-w-6xl">{children}</div>
+    </div>
+  );
+}
+
+function LoginScreen() {
+  const queryClient = useQueryClient();
+  const loginFn = useServerFn(adminLogin);
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const login = useMutation({
+    mutationFn: (value: string) => loginFn({ data: { password: value } }),
+    onSuccess: (result) => {
+      if (result.ok) {
+        void queryClient.invalidateQueries({ queryKey: ["admin-session"] });
+      } else {
+        setError(result.message ?? "Senha incorreta.");
+      }
+    },
+    onError: () => setError("Não foi possível entrar. Tente novamente."),
+  });
+
+  return (
+    <Shell>
+      <div className="mx-auto mt-20 max-w-sm rounded-2xl border border-zinc-800 bg-zinc-900/60 p-6">
+        <h1 className="text-lg font-semibold">Painel da loja</h1>
+        <p className="mt-1 text-sm text-zinc-400">Digite a senha para acessar.</p>
+        <form
+          className="mt-5 space-y-3"
+          onSubmit={(event) => {
+            event.preventDefault();
+            setError("");
+            login.mutate(password);
+          }}
+        >
+          <input
+            type="password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            autoComplete="current-password"
+            placeholder="Senha"
+            className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm outline-none focus:border-rose-500"
+          />
+          {error ? <p className="text-sm text-rose-400">{error}</p> : null}
+          <button
+            type="submit"
+            disabled={login.isPending}
+            className="w-full rounded-lg bg-rose-500 px-3 py-2 text-sm font-semibold text-white disabled:opacity-60"
+          >
+            {login.isPending ? "Entrando…" : "Entrar"}
+          </button>
+        </form>
+      </div>
+    </Shell>
+  );
+}
+
+function Dashboard() {
+  const queryClient = useQueryClient();
+  const logoutFn = useServerFn(adminLogout);
+  const [tab, setTab] = useState<TabKey>("live");
+  const [days, setDays] = useState(7);
+
+  const overviewFn = useServerFn(adminOverview);
+  const overview = useQuery({
+    queryKey: ["admin-overview", days],
+    queryFn: () => overviewFn({ data: { days } }),
+    refetchInterval: 30_000,
+  });
+
+  const tabs: Array<{ key: TabKey; label: string }> = [
+    { key: "live", label: "Ao vivo" },
+    { key: "vendas", label: "Vendas" },
+    { key: "produtos", label: "Produtos" },
+    { key: "pixel", label: "Pixel TikTok" },
+  ];
+
+  return (
+    <Shell>
+      <header className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-semibold">Painel da loja</h1>
+          <p className="text-sm text-zinc-400">Acompanhe visitantes, vendas e marcação de conversão.</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <select
+            value={days}
+            onChange={(event) => setDays(Number(event.target.value))}
+            className="rounded-lg border border-zinc-700 bg-zinc-900 px-2 py-1.5 text-sm"
+          >
+            {[1, 7, 14, 30, 90].map((option) => (
+              <option key={option} value={option}>
+                {option === 1 ? "Hoje" : `${option} dias`}
+              </option>
+            ))}
+          </select>
+          <button
+            onClick={async () => {
+              await logoutFn({});
+              void queryClient.invalidateQueries({ queryKey: ["admin-session"] });
+            }}
+            className="rounded-lg border border-zinc-700 px-3 py-1.5 text-sm text-zinc-300"
+          >
+            Sair
+          </button>
+        </div>
+      </header>
+
+      <section className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
+        <Metric label="Visitantes" value={String(overview.data?.totals.sessions ?? 0)} />
+        <Metric label="Pix gerados" value={String(overview.data?.totals.pixCount ?? 0)} />
+        <Metric label="Vendas pagas" value={String(overview.data?.totals.paidCount ?? 0)} accent />
+        <Metric label="Faturamento" value={currency(overview.data?.totals.revenue ?? 0)} accent />
+        <Metric label="Ticket médio" value={currency(overview.data?.totals.ticket ?? 0)} />
+        <Metric
+          label="Pix → pago"
+          value={`${(overview.data?.totals.conversion ?? 0).toFixed(1)}%`}
+        />
+        <Metric
+          label="Visita → pago"
+          value={`${(overview.data?.totals.sessionToPaid ?? 0).toFixed(2)}%`}
+        />
+        <Metric label="Páginas vistas" value={String(overview.data?.totals.pageviews ?? 0)} />
+      </section>
+
+      <nav className="mt-8 flex gap-2 overflow-x-auto">
+        {tabs.map((item) => (
+          <button
+            key={item.key}
+            onClick={() => setTab(item.key)}
+            className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm ${
+              tab === item.key ? "bg-rose-500 text-white" : "border border-zinc-700 text-zinc-300"
+            }`}
+          >
+            {item.label}
+          </button>
+        ))}
+      </nav>
+
+      <div className="mt-5">
+        {tab === "live" ? <LiveTab /> : null}
+        {tab === "vendas" ? (
+          <SalesTab
+            funnel={overview.data?.funnel ?? []}
+            series={overview.data?.series ?? []}
+            devices={overview.data?.devices ?? []}
+            sources={overview.data?.sources ?? []}
+          />
+        ) : null}
+        {tab === "produtos" ? <ProductsTab days={days} /> : null}
+        {tab === "pixel" ? <PixelTab /> : null}
+      </div>
+    </Shell>
+  );
+}
+
+function Metric({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
+  return (
+    <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-3">
+      <p className="text-xs uppercase tracking-wide text-zinc-500">{label}</p>
+      <p className={`mt-1 text-lg font-semibold ${accent ? "text-emerald-400" : "text-zinc-100"}`}>
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function Card({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4">
+      <h2 className="text-sm font-semibold text-zinc-200">{title}</h2>
+      <div className="mt-3">{children}</div>
+    </div>
+  );
+}
+
+function LiveTab() {
+  const liveFn = useServerFn(adminLive);
+  const live = useQuery({
+    queryKey: ["admin-live"],
+    queryFn: () => liveFn({}),
+    refetchInterval: 5_000,
+  });
+  const data = live.data;
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-xl border border-emerald-800/50 bg-emerald-500/5 p-4">
+        <p className="flex items-center gap-2 text-sm text-emerald-300">
+          <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
+          {data?.onlineNow ?? 0} pessoa(s) navegando agora
+        </p>
+        <div className="mt-3 grid grid-cols-2 gap-3 text-sm md:grid-cols-5">
+          <Metric label="Home" value={String(data?.stages.home ?? 0)} />
+          <Metric label="Produto" value={String(data?.stages.product ?? 0)} />
+          <Metric label="Carrinho" value={String(data?.stages.cart ?? 0)} />
+          <Metric label="Checkout" value={String(data?.stages.checkout ?? 0)} />
+          <Metric label="Pagamento" value={String(data?.stages.payment ?? 0)} />
+        </div>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card title="Visitantes ativos">
+          <div className="max-h-80 overflow-auto text-sm">
+            {(data?.visitors ?? []).length === 0 ? (
+              <p className="text-zinc-500">Ninguém online nos últimos 5 minutos.</p>
+            ) : (
+              <table className="w-full text-left">
+                <thead className="text-xs uppercase text-zinc-500">
+                  <tr>
+                    <th className="py-1">Página</th>
+                    <th className="py-1">Origem</th>
+                    <th className="py-1">Aparelho</th>
+                    <th className="py-1">Visto</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(data?.visitors ?? []).map((visitor) => (
+                    <tr key={visitor.sessionId} className="border-t border-zinc-800">
+                      <td className="max-w-[180px] truncate py-1.5">{visitor.path}</td>
+                      <td className="py-1.5 text-zinc-400">{String(visitor.source)}</td>
+                      <td className="py-1.5 text-zinc-400">{visitor.device}</td>
+                      <td className="py-1.5 text-zinc-500">{time(visitor.at)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </Card>
+
+        <Card title="Atividade em tempo real">
+          <ul className="max-h-80 space-y-1 overflow-auto text-sm">
+            {(data?.feed ?? []).map((item, index) => (
+              <li key={`${item.at}-${index}`} className="flex justify-between gap-2 border-b border-zinc-800/70 py-1">
+                <span className="text-zinc-300">
+                  {item.type}
+                  {item.title ? ` · ${item.title}` : ""}
+                </span>
+                <span className="text-zinc-500">{time(item.at)}</span>
+              </li>
+            ))}
+            {(data?.feed ?? []).length === 0 ? <li className="text-zinc-500">Sem atividade.</li> : null}
+          </ul>
+        </Card>
+      </div>
+
+      <Card title="Últimos pedidos">
+        <div className="overflow-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="text-xs uppercase text-zinc-500">
+              <tr>
+                <th className="py-1">Pedido</th>
+                <th className="py-1">Cliente</th>
+                <th className="py-1">Valor</th>
+                <th className="py-1">Status</th>
+                <th className="py-1">Criado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(data?.recentOrders ?? []).map((order) => (
+                <tr key={order.referenceId} className="border-t border-zinc-800">
+                  <td className="py-1.5 font-mono text-xs">{order.referenceId}</td>
+                  <td className="py-1.5">{order.customer || "-"}</td>
+                  <td className="py-1.5">{currency(order.amount)}</td>
+                  <td className="py-1.5">
+                    <StatusBadge status={order.status} />
+                  </td>
+                  <td className="py-1.5 text-zinc-500">{time(order.createdAt)}</td>
+                </tr>
+              ))}
+              {(data?.recentOrders ?? []).length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="py-3 text-zinc-500">
+                    Nenhum pedido ainda.
+                  </td>
+                </tr>
+              ) : null}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function StatusBadge({ status }: { status: string }) {
+  const paid = status === "paid";
+  return (
+    <span
+      className={`rounded-full px-2 py-0.5 text-xs ${
+        paid ? "bg-emerald-500/15 text-emerald-300" : "bg-amber-500/15 text-amber-300"
+      }`}
+    >
+      {paid ? "pago" : "aguardando"}
+    </span>
+  );
+}
+
+function SalesTab({
+  funnel,
+  series,
+  devices,
+  sources,
+}: {
+  funnel: Array<{ label: string; value: number }>;
+  series: Array<{ date: string; pix: number; paid: number; revenue: number; sessions: number }>;
+  devices: Array<{ label: string; value: number }>;
+  sources: Array<{ label: string; value: number }>;
+}) {
+  const ordersFn = useServerFn(adminOrders);
+  const checkFn = useServerFn(adminCheckOrder);
+  const queryClient = useQueryClient();
+  const [status, setStatus] = useState("all");
+  const [search, setSearch] = useState("");
+
+  const orders = useQuery({
+    queryKey: ["admin-orders", status, search],
+    queryFn: () => ordersFn({ data: { status, search, limit: 150 } }),
+    refetchInterval: 20_000,
+  });
+
+  const check = useMutation({
+    mutationFn: (order: { referenceId: string; transactionId?: string }) => checkFn({ data: order }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin-overview"] });
+    },
+  });
+
+  const maxFunnel = Math.max(1, ...funnel.map((step) => step.value));
+  const maxRevenue = Math.max(1, ...series.map((point) => point.revenue));
+
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card title="Funil de conversão">
+          <div className="space-y-2">
+            {funnel.map((step) => (
+              <div key={step.label}>
+                <div className="flex justify-between text-xs text-zinc-400">
+                  <span>{step.label}</span>
+                  <span>{step.value}</span>
+                </div>
+                <div className="mt-1 h-2 rounded bg-zinc-800">
+                  <div
+                    className="h-2 rounded bg-rose-500"
+                    style={{ width: `${(step.value / maxFunnel) * 100}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        <Card title="Faturamento por dia">
+          <div className="flex h-40 items-end gap-1">
+            {series.map((point) => (
+              <div key={point.date} className="flex flex-1 flex-col items-center gap-1">
+                <div
+                  className="w-full rounded-t bg-emerald-500/70"
+                  style={{ height: `${Math.max(2, (point.revenue / maxRevenue) * 130)}px` }}
+                  title={`${point.date}: ${currency(point.revenue)} · ${point.paid} pagos`}
+                />
+                <span className="text-[10px] text-zinc-500">{point.date.slice(8)}</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card title="Aparelhos">
+          <ul className="space-y-1 text-sm text-zinc-300">
+            {devices.map((item) => (
+              <li key={item.label} className="flex justify-between">
+                <span>{item.label}</span>
+                <span className="text-zinc-500">{item.value}</span>
+              </li>
+            ))}
+            {devices.length === 0 ? <li className="text-zinc-500">Sem dados.</li> : null}
+          </ul>
+        </Card>
+        <Card title="Origem do tráfego">
+          <ul className="space-y-1 text-sm text-zinc-300">
+            {sources.map((item) => (
+              <li key={item.label} className="flex justify-between">
+                <span>{item.label}</span>
+                <span className="text-zinc-500">{item.value}</span>
+              </li>
+            ))}
+            {sources.length === 0 ? <li className="text-zinc-500">Sem dados.</li> : null}
+          </ul>
+        </Card>
+      </div>
+
+      <Card title="Pedidos">
+        <div className="mb-3 flex flex-wrap gap-2">
+          <select
+            value={status}
+            onChange={(event) => setStatus(event.target.value)}
+            className="rounded-lg border border-zinc-700 bg-zinc-900 px-2 py-1.5 text-sm"
+          >
+            <option value="all">Todos</option>
+            <option value="paid">Pagos</option>
+            <option value="pending">Aguardando</option>
+          </select>
+          <input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Buscar por pedido, nome ou e-mail"
+            className="flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-1.5 text-sm"
+          />
+        </div>
+        <div className="overflow-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="text-xs uppercase text-zinc-500">
+              <tr>
+                <th className="py-1">Pedido</th>
+                <th className="py-1">Cliente</th>
+                <th className="py-1">Itens</th>
+                <th className="py-1">Valor</th>
+                <th className="py-1">Status</th>
+                <th className="py-1">TikTok</th>
+                <th className="py-1">Criado</th>
+                <th className="py-1"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {(orders.data ?? []).map((order) => (
+                <tr key={order.id} className="border-t border-zinc-800 align-top">
+                  <td className="py-2 font-mono text-xs">{order.referenceId}</td>
+                  <td className="py-2">
+                    <div>{order.customer || "-"}</div>
+                    <div className="text-xs text-zinc-500">{order.email}</div>
+                    <div className="text-xs text-zinc-500">{order.place}</div>
+                  </td>
+                  <td className="py-2 text-xs text-zinc-400">
+                    {(order.items as Array<{ titulo?: string; quantidade?: number }>).map(
+                      (item, index) => (
+                        <div key={index}>
+                          {item.quantidade ?? 1}× {item.titulo ?? "Produto"}
+                        </div>
+                      ),
+                    )}
+                  </td>
+                  <td className="py-2">{currency(order.amount)}</td>
+                  <td className="py-2">
+                    <StatusBadge status={order.status} />
+                  </td>
+                  <td className="py-2 text-xs">
+                    {order.tiktokSent ? (
+                      <span className="text-emerald-400">enviado</span>
+                    ) : (
+                      <span className="text-zinc-500">—</span>
+                    )}
+                  </td>
+                  <td className="py-2 text-xs text-zinc-500">
+                    <div>{time(order.createdAt)}</div>
+                    {order.paidAt ? <div className="text-emerald-500">{time(order.paidAt)}</div> : null}
+                  </td>
+                  <td className="py-2">
+                    <button
+                      onClick={() =>
+                        check.mutate({
+                          referenceId: order.referenceId,
+                          transactionId: order.transactionId ?? undefined,
+                        })
+                      }
+                      className="rounded border border-zinc-700 px-2 py-1 text-xs text-zinc-300"
+                    >
+                      Conferir
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {(orders.data ?? []).length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="py-3 text-zinc-500">
+                    Nenhum pedido encontrado.
+                  </td>
+                </tr>
+              ) : null}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function ProductsTab({ days }: { days: number }) {
+  const topFn = useServerFn(adminTopProducts);
+  const products = useQuery({
+    queryKey: ["admin-products", days],
+    queryFn: () => topFn({ data: { days } }),
+    refetchInterval: 60_000,
+  });
+
+  return (
+    <Card title="Produtos mais vendidos">
+      <div className="overflow-auto">
+        <table className="w-full text-left text-sm">
+          <thead className="text-xs uppercase text-zinc-500">
+            <tr>
+              <th className="py-1">Produto</th>
+              <th className="py-1">Vendidos (pagos)</th>
+              <th className="py-1">Pix gerados</th>
+              <th className="py-1">Faturamento</th>
+              <th className="py-1">Visitas</th>
+              <th className="py-1">Carrinhos</th>
+              <th className="py-1">Visita → venda</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(products.data ?? []).map((product) => (
+              <tr key={product.id} className="border-t border-zinc-800">
+                <td className="py-2">{product.title}</td>
+                <td className="py-2 text-emerald-400">{product.paidSold}</td>
+                <td className="py-2">{product.sold}</td>
+                <td className="py-2">{currency(product.revenue)}</td>
+                <td className="py-2 text-zinc-400">{product.views}</td>
+                <td className="py-2 text-zinc-400">{product.carts}</td>
+                <td className="py-2 text-zinc-400">
+                  {product.views ? `${((product.paidSold / product.views) * 100).toFixed(1)}%` : "-"}
+                </td>
+              </tr>
+            ))}
+            {(products.data ?? []).length === 0 ? (
+              <tr>
+                <td colSpan={7} className="py-3 text-zinc-500">
+                  Ainda sem dados de produtos.
+                </td>
+              </tr>
+            ) : null}
+          </tbody>
+        </table>
+      </div>
+    </Card>
+  );
+}
+
+function PixelTab() {
+  const getFn = useServerFn(adminGetSettings);
+  const saveFn = useServerFn(adminSaveSettings);
+  const testFn = useServerFn(adminTestTikTokEvent);
+  const queryClient = useQueryClient();
+  const settings = useQuery({ queryKey: ["admin-settings"], queryFn: () => getFn({}) });
+
+  const [pixelIds, setPixelIds] = useState<string | null>(null);
+  const [accessToken, setAccessToken] = useState("");
+  const [testEventCode, setTestEventCode] = useState<string | null>(null);
+  const [serverEvents, setServerEvents] = useState<boolean | null>(null);
+  const [trackPageview, setTrackPageview] = useState<boolean | null>(null);
+  const [message, setMessage] = useState("");
+
+  const currentPixelIds = pixelIds ?? (settings.data?.pixelIds ?? []).join(", ");
+  const currentTestCode = testEventCode ?? settings.data?.testEventCode ?? "";
+  const currentServerEvents = serverEvents ?? settings.data?.serverEventsEnabled ?? true;
+  const currentTrackPageview = trackPageview ?? settings.data?.trackPageview ?? true;
+
+  const save = useMutation({
+    mutationFn: () =>
+      saveFn({
+        data: {
+          pixelIds: currentPixelIds,
+          accessToken,
+          testEventCode: currentTestCode,
+          serverEventsEnabled: currentServerEvents,
+          trackPageview: currentTrackPageview,
+        },
+      }),
+    onSuccess: () => {
+      setAccessToken("");
+      setMessage("Configuração salva. As páginas da loja já usam esse pixel.");
+      void queryClient.invalidateQueries({ queryKey: ["admin-settings"] });
+    },
+    onError: () => setMessage("Não foi possível salvar."),
+  });
+
+  const test = useMutation({
+    mutationFn: () => testFn({}),
+    onSuccess: (result) => setMessage(result.message),
+    onError: () => setMessage("Falha ao enviar o evento de teste."),
+  });
+
+  return (
+    <div className="grid gap-4 lg:grid-cols-2">
+      <Card title="Pixel do TikTok">
+        <div className="space-y-3 text-sm">
+          <label className="block">
+            <span className="text-xs text-zinc-400">ID do pixel (separe por vírgula para vários)</span>
+            <input
+              value={currentPixelIds}
+              onChange={(event) => setPixelIds(event.target.value)}
+              placeholder="C1A2B3..."
+              className="mt-1 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2"
+            />
+          </label>
+          <label className="block">
+            <span className="text-xs text-zinc-400">
+              Token de acesso da API de eventos {settings.data?.hasAccessToken ? "(salvo)" : ""}
+            </span>
+            <input
+              value={accessToken}
+              onChange={(event) => setAccessToken(event.target.value)}
+              type="password"
+              placeholder={settings.data?.hasAccessToken ? "••••••••" : "cole o token aqui"}
+              className="mt-1 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2"
+            />
+          </label>
+          <label className="block">
+            <span className="text-xs text-zinc-400">Código de teste (opcional)</span>
+            <input
+              value={currentTestCode}
+              onChange={(event) => setTestEventCode(event.target.value)}
+              className="mt-1 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2"
+            />
+          </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={currentServerEvents}
+              onChange={(event) => setServerEvents(event.target.checked)}
+            />
+            <span>Marcar vendas pelo servidor (recomendado)</span>
+          </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={currentTrackPageview}
+              onChange={(event) => setTrackPageview(event.target.checked)}
+            />
+            <span>Contar visitas de página no pixel</span>
+          </label>
+          {message ? <p className="text-emerald-400">{message}</p> : null}
+          <div className="flex gap-2">
+            <button
+              onClick={() => save.mutate()}
+              disabled={save.isPending}
+              className="rounded-lg bg-rose-500 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+            >
+              {save.isPending ? "Salvando…" : "Salvar"}
+            </button>
+            <button
+              onClick={() => test.mutate()}
+              disabled={test.isPending}
+              className="rounded-lg border border-zinc-700 px-4 py-2 text-sm"
+            >
+              Enviar evento de teste
+            </button>
+          </div>
+        </div>
+      </Card>
+
+      <Card title="Como funciona a marcação de vendas">
+        <ul className="space-y-2 text-sm text-zinc-400">
+          <li>• O pixel é carregado em todas as páginas da loja com o ID salvo aqui.</li>
+          <li>• Quando o cliente gera o Pix, o evento de início de compra é enviado.</li>
+          <li>• Quando o pagamento é confirmado, a venda é marcada pelo servidor com o valor real.</li>
+          <li>• Cada venda usa um identificador único, então o TikTok não conta duas vezes.</li>
+          <li>• Pedidos já enviados aparecem como “enviado” na aba Vendas.</li>
+        </ul>
+      </Card>
+    </div>
+  );
+}

@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as Pedido_detalheDotphpRouteImport } from './routes/pedido_detalhe[.]php'
 import { Route as Pix_testeDotphpRouteImport } from './routes/pix_teste[.]php'
 import { Route as Verifica_pagamentoDotphpRouteImport } from './routes/verifica_pagamento[.]php'
@@ -19,6 +20,11 @@ import { Route as ApiPublicPixRouteImport } from './routes/api/public/pix'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const Pedido_detalheDotphpRoute = Pedido_detalheDotphpRouteImport.update({
@@ -50,6 +56,7 @@ const ApiPublicPixRoute = ApiPublicPixRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/pedido_detalhe.php': typeof Pedido_detalheDotphpRoute
   '/pix_teste.php': typeof Pix_testeDotphpRoute
   '/verifica_pagamento.php': typeof Verifica_pagamentoDotphpRoute
@@ -58,6 +65,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/pedido_detalhe.php': typeof Pedido_detalheDotphpRoute
   '/pix_teste.php': typeof Pix_testeDotphpRoute
   '/verifica_pagamento.php': typeof Verifica_pagamentoDotphpRoute
@@ -67,6 +75,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/pedido_detalhe.php': typeof Pedido_detalheDotphpRoute
   '/pix_teste.php': typeof Pix_testeDotphpRoute
   '/verifica_pagamento.php': typeof Verifica_pagamentoDotphpRoute
@@ -77,6 +86,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/pedido_detalhe.php'
     | '/pix_teste.php'
     | '/verifica_pagamento.php'
@@ -85,6 +95,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin'
     | '/pedido_detalhe.php'
     | '/pix_teste.php'
     | '/verifica_pagamento.php'
@@ -93,6 +104,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/pedido_detalhe.php'
     | '/pix_teste.php'
     | '/verifica_pagamento.php'
@@ -102,6 +114,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   Pedido_detalheDotphpRoute: typeof Pedido_detalheDotphpRoute
   Pix_testeDotphpRoute: typeof Pix_testeDotphpRoute
   Verifica_pagamentoDotphpRoute: typeof Verifica_pagamentoDotphpRoute
@@ -116,6 +129,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pedido_detalhe.php': {
@@ -158,6 +178,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   Pedido_detalheDotphpRoute: Pedido_detalheDotphpRoute,
   Pix_testeDotphpRoute: Pix_testeDotphpRoute,
   Verifica_pagamentoDotphpRoute: Verifica_pagamentoDotphpRoute,
