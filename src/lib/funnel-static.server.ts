@@ -31,6 +31,20 @@ function withTracking(html: string): string {
   return html + TRACK_SNIPPET;
 }
 
+const FUNNEL_POST_PATHS = new Set(["/api/public/track", "/webhooks/legacy"]);
+
+/**
+ * True when the funnel handler can answer this request. Used by the dev/preview
+ * middleware so it never consumes the body of a request it will not handle
+ * (a consumed body would hang the downstream server-function handler).
+ */
+export function isFunnelRequest(method: string, pathname: string): boolean {
+  const path = pathname.replace(/\/+$/, "") || "/";
+  if (method === "GET" || method === "HEAD") return true;
+  if (method !== "POST") return false;
+  return PIX_PATHS.has(path) || FUNNEL_POST_PATHS.has(path);
+}
+
 export async function handleFunnelRequest(request: Request): Promise<Response | null> {
   const url = new URL(request.url);
   const pathname = url.pathname.replace(/\/+$/, "") || "/";
