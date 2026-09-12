@@ -142,7 +142,7 @@ function Dashboard() {
     { key: "vendas", label: "Vendas" },
     { key: "analises", label: "Análises" },
     { key: "produtos", label: "Produtos" },
-    { key: "pixel", label: "Pixel TikTok" },
+    { key: "pixel", label: "Pixels (TikTok e Facebook)" },
   ];
 
   return (
