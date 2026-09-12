@@ -155,13 +155,19 @@ export async function recordPixOrder(
       );
 
     const utm = (order?.utm && typeof order.utm === "object" ? order.utm : {}) as AnyRecord;
+    const sessionId = String(order?.session_id ?? "").slice(0, 64);
+    // Mesmo event_id do navegador (sessão) => TikTok/Meta deduplicam.
+    const checkoutEventId = sessionId
+      ? `${sessionId}_initiatecheckout`
+      : `${String(result.referenceId ?? "")}_initiatecheckout`;
 
     await sendTikTokServerEvent("InitiateCheckout", {
       value: Number(order?.valor ?? order?.total ?? 0),
       referenceId: String(result.referenceId ?? ""),
+      eventId: checkoutEventId,
       email: String(comprador.email ?? ""),
       phone: String(comprador.telefone ?? ""),
-      clickId: String(order?.click_id ?? ""),
+      clickId: String(order?.click_id ?? utm.ttclid ?? ""),
       userAgent: request.headers.get("user-agent") ?? "",
       contents: carrinho,
     });
@@ -170,6 +176,8 @@ export async function recordPixOrder(
     await sendMetaServerEvent("InitiateCheckout", {
       value: Number(order?.valor ?? order?.total ?? 0),
       referenceId: String(result.referenceId ?? ""),
+      eventId: checkoutEventId,
+
       email: String(comprador.email ?? ""),
       phone: String(comprador.telefone ?? ""),
       firstName: String(comprador.nome ?? ""),
