@@ -6,7 +6,8 @@
     "/pix.php",
     "/verifica_pagamento.php",
     "/pedido_detalhe.php",
-    "/webhooks/legacy"
+    "/webhooks/legacy",
+    "/app/api/*"
   ],
   "exclude": []
 }

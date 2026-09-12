@@ -16,6 +16,8 @@
       "/tiktok-config.js",
       "/shop-track.js",
       "/meta-pixel.js",
+      "/app/api/*",
+
       "/admin",
       "/admin/*"
     ]

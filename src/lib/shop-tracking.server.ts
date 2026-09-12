@@ -155,13 +155,19 @@ export async function recordPixOrder(
       );
 
     const utm = (order?.utm && typeof order.utm === "object" ? order.utm : {}) as AnyRecord;
+    const sessionId = String(order?.session_id ?? "").slice(0, 64);
+    // Mesmo event_id do navegador (sessão) => TikTok/Meta deduplicam.
+    const checkoutEventId = sessionId
+      ? `${sessionId}_initiatecheckout`
+      : `${String(result.referenceId ?? "")}_initiatecheckout`;
 
     await sendTikTokServerEvent("InitiateCheckout", {
       value: Number(order?.valor ?? order?.total ?? 0),
       referenceId: String(result.referenceId ?? ""),
+      eventId: checkoutEventId,
       email: String(comprador.email ?? ""),
       phone: String(comprador.telefone ?? ""),
-      clickId: String(order?.click_id ?? ""),
+      clickId: String(order?.click_id ?? utm.ttclid ?? ""),
       userAgent: request.headers.get("user-agent") ?? "",
       contents: carrinho,
     });
@@ -170,6 +176,8 @@ export async function recordPixOrder(
     await sendMetaServerEvent("InitiateCheckout", {
       value: Number(order?.valor ?? order?.total ?? 0),
       referenceId: String(result.referenceId ?? ""),
+      eventId: checkoutEventId,
+
       email: String(comprador.email ?? ""),
       phone: String(comprador.telefone ?? ""),
       firstName: String(comprador.nome ?? ""),
@@ -272,6 +280,8 @@ export async function sendTikTokServerEvent(
     email?: string;
     phone?: string;
     clickId?: string;
+    eventId?: string;
+
     userAgent?: string;
     contents?: AnyRecord[];
   },
@@ -297,7 +307,7 @@ export async function sendTikTokServerEvent(
       {
         event: eventName,
         event_time: Math.floor(Date.now() / 1000),
-        event_id: `${input.referenceId}_${eventName.toLowerCase()}`,
+        event_id: input.eventId || `${input.referenceId}_${eventName.toLowerCase()}`,
         user,
         properties: {
           currency: "BRL",
@@ -336,7 +346,18 @@ export async function sendTikTokServerEvent(
 
 /* ------------------------------------------------------- generated scripts */
 
+/** Endereço legado que as páginas da loja consultam para descobrir o pixel. */
+export async function handleTikTokPixelLookup(): Promise<Response> {
+  const settings = await getTikTokSettings();
+  return json({
+    pixel_id: settings.pixel_ids[0] ?? "",
+    pixel_ids: settings.pixel_ids,
+    mark_as_paid: "sim",
+  });
+}
+
 export async function handleTikTokConfigJs(): Promise<Response> {
+
   const settings = await getTikTokSettings();
   const body = `/* generated */
 window.TIKTOK_PIXEL_IDS = ${JSON.stringify(settings.pixel_ids)};
@@ -412,6 +433,108 @@ export function handleShopTrackJs(): Response {
     }
     var fbp = (document.cookie.match(/_fbp=([^;]+)/) || [])[1] || '';
     if (fbp) utm.fbp = fbp;
+  } catch (e) {}
+
+  // --- Identidade compartilhada (browser + servidor) -----------------------
+  function currentRef(){
+    var r = qp('ref') || qp('referenceId') || '';
+    if (r) return r;
+    try {
+      var ord = JSON.parse(sessionStorage.getItem('checkoutOrdem') || '{}');
+      if (ord && (ord.referenceId || ord.ref)) return String(ord.referenceId || ord.ref);
+    } catch (e) {}
+    return '';
+  }
+  window.shopIdentity = function(){
+    return { session_id: sid, click_id: clickId, utm: utm, reference_id: currentRef() };
+  };
+  // Mesmo event_id no navegador e no servidor => plataformas deduplicam.
+  window.shopEventId = function(name){
+    var ev = String(name || '').toLowerCase();
+    // Compra/pagamento é por pedido; intenção de compra é por sessão.
+    var orderLevel = /purchase|completepayment|placeanorder/.test(ev);
+    var base = orderLevel ? (currentRef() || sid) : sid;
+    return base + '_' + ev;
+  };
+
+
+  var firedEvents = {};
+  function onceKey(name){
+    var k = window.shopEventId(name);
+    if (firedEvents[k]) return false;
+    firedEvents[k] = true;
+    return true;
+  }
+
+  // Envolve ttqFire: injeta event_id e evita disparos repetidos do mesmo evento.
+  function wrapTtq(orig){
+    if (!orig || orig.__shopWrapped) return orig;
+    var wrapped = function(name, payload){
+      var eid = (payload && payload.event_id) || window.shopEventId(name);
+      var dedupable = /InitiateCheckout|CompletePayment|Purchase|ViewContent|AddToCart/i.test(String(name || ''));
+      if (dedupable && !onceKey(name)) return;
+      var next = Object.assign({}, payload || {}, { event_id: eid, eventID: eid });
+      try { return orig.call(this, name, next); } catch (e) {}
+    };
+    wrapped.__shopWrapped = true;
+    return wrapped;
+  }
+
+  // Envolve fbq: adiciona eventID nas conversões (dedupe com a API do servidor).
+  function wrapFbq(orig){
+    if (!orig || orig.__shopWrapped) return orig;
+    var wrapped = function(){
+      var args = [].slice.call(arguments);
+      if (args[0] === 'track' && args[1]) {
+        var name = String(args[1]);
+        if (/Purchase|InitiateCheckout|ViewContent|AddToCart/i.test(name) && !onceKey('fb_' + name)) return;
+        var opts = args[3] && typeof args[3] === 'object' ? args[3] : {};
+        args[3] = Object.assign({}, opts, { eventID: window.shopEventId(name) });
+      }
+      try { return orig.apply(this, args); } catch (e) {}
+    };
+    for (var k in orig) { try { wrapped[k] = orig[k]; } catch (e) {} }
+    wrapped.__shopWrapped = true;
+    wrapped.__shopOrig = orig;
+    return wrapped;
+  }
+
+  function hook(prop, wrapper){
+    var value = wrapper(window[prop]);
+    try {
+      Object.defineProperty(window, prop, {
+        configurable: true,
+        enumerable: true,
+        get: function(){ return value; },
+        set: function(fn){ value = wrapper(fn); }
+      });
+    } catch (e) {}
+  }
+  hook('ttqFire', wrapTtq);
+  hook('fbq', wrapFbq);
+
+  // Anexa identidade nos pedidos de Pix para o servidor casar o evento com o clique.
+  try {
+    var origFetch = window.fetch ? window.fetch.bind(window) : null;
+    if (origFetch) {
+      window.fetch = function(input, init){
+        try {
+          var url = typeof input === 'string' ? input : (input && input.url) || '';
+          var method = String((init && init.method) || (input && input.method) || 'GET').toUpperCase();
+          if (method === 'POST' && /pix/i.test(url) && init && typeof init.body === 'string') {
+            var data = JSON.parse(init.body);
+            if (data && typeof data === 'object') {
+              if (!data.session_id) data.session_id = sid;
+              if (!data.click_id && clickId) data.click_id = clickId;
+              if (!data.utm || typeof data.utm !== 'object') data.utm = utm;
+              else data.utm = Object.assign({}, utm, data.utm);
+              init = Object.assign({}, init, { body: JSON.stringify(data) });
+            }
+          }
+        } catch (e) {}
+        return origFetch(input, init);
+      };
+    }
   } catch (e) {}
 
 

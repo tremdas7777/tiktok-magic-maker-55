@@ -7,7 +7,13 @@ import {
   PIX_PATHS,
 } from "./legacy-pix.server";
 import { handleMetaPixelJs } from "./meta-tracking.server";
-import { handleShopTrackJs, handleTikTokConfigJs, handleTrackRequest } from "./shop-tracking.server";
+import {
+  handleShopTrackJs,
+  handleTikTokConfigJs,
+  handleTikTokPixelLookup,
+  handleTrackRequest,
+} from "./shop-tracking.server";
+
 
 const PAGES: Record<string, string | undefined> = {
   "/": FUNNEL_FILES["index.html"],
@@ -62,6 +68,12 @@ export async function handleFunnelRequest(request: Request): Promise<Response | 
   if (request.method === "GET" && pathname === "/tiktok-config.js") {
     return handleTikTokConfigJs();
   }
+
+  // As páginas da loja buscam o ID do pixel neste endereço legado.
+  if (request.method === "GET" && pathname === "/app/api/tiktok_pixel.php") {
+    return handleTikTokPixelLookup();
+  }
+
 
   if (request.method === "GET" && pathname === "/meta-pixel.js") {
     return handleMetaPixelJs();
