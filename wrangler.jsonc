@@ -12,7 +12,11 @@
       "/pix.php",
       "/verifica_pagamento.php",
       "/pedido_detalhe.php",
-      "/webhooks/legacy"
+      "/webhooks/legacy",
+      "/tiktok-config.js",
+      "/shop-track.js",
+      "/admin",
+      "/admin/*"
     ]
   }
 }
