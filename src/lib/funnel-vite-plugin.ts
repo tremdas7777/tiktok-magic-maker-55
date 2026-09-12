@@ -39,41 +39,39 @@ async function writeNodeResponse(webResponse: Response, res: ServerResponse) {
   res.end(buffer);
 }
 
+function makeMiddleware(origin: () => string) {
+  return async (req: IncomingMessage, res: ServerResponse, next: (err?: unknown) => void) => {
+    try {
+      const { handleFunnelRequest, isFunnelRequest } = await import("./funnel-static.server");
+      const pathname = new URL(req.url || "/", origin()).pathname;
+      if (!isFunnelRequest(req.method || "GET", pathname)) {
+        // Do not read the body: the downstream handler still needs it.
+        next();
+        return;
+      }
+      const request = await nodeToWebRequest(req, origin());
+      const response = await handleFunnelRequest(request);
+      if (!response) {
+        next();
+        return;
+      }
+      await writeNodeResponse(response, res);
+    } catch (error) {
+      next(error);
+    }
+  };
+}
+
 export function funnelPlugin(): Plugin {
   return {
     name: "tiktok-funnel-identical",
     configureServer(server) {
-      server.middlewares.use(async (req, res, next) => {
-        try {
-          const origin = server.resolvedUrls?.local[0] ?? "http://localhost:8080";
-          const request = await nodeToWebRequest(req, origin);
-          const { handleFunnelRequest } = await import("./funnel-static.server");
-          const response = await handleFunnelRequest(request);
-          if (!response) {
-            next();
-            return;
-          }
-          await writeNodeResponse(response, res);
-        } catch (error) {
-          next(error);
-        }
-      });
+      server.middlewares.use(
+        makeMiddleware(() => server.resolvedUrls?.local[0] ?? "http://localhost:8080"),
+      );
     },
     configurePreviewServer(server) {
-      server.middlewares.use(async (req, res, next) => {
-        try {
-          const request = await nodeToWebRequest(req, "http://localhost:4173");
-          const { handleFunnelRequest } = await import("./funnel-static.server");
-          const response = await handleFunnelRequest(request);
-          if (!response) {
-            next();
-            return;
-          }
-          await writeNodeResponse(response, res);
-        } catch (error) {
-          next(error);
-        }
-      });
+      server.middlewares.use(makeMiddleware(() => "http://localhost:4173"));
     },
   };
 }
