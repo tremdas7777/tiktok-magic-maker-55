@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 
 import {
+  adminAbandonedCarts,
   adminAnalytics,
   adminCheckOrder,
   adminGetMetaSettings,
@@ -46,7 +47,7 @@ const currency = (value: number) =>
 const time = (value?: string | null) =>
   value ? new Date(value).toLocaleString("pt-BR", { hour12: false }) : "-";
 
-type TabKey = "live" | "vendas" | "analises" | "produtos" | "pixel";
+type TabKey = "live" | "vendas" | "analises" | "carrinhos" | "produtos" | "pixel";
 
 function AdminPage() {
   const sessionFn = useServerFn(adminSessionState);
@@ -141,6 +142,7 @@ function Dashboard() {
     { key: "live", label: "Ao vivo" },
     { key: "vendas", label: "Vendas" },
     { key: "analises", label: "Análises" },
+    { key: "carrinhos", label: "Carrinhos abandonados" },
     { key: "produtos", label: "Produtos" },
     { key: "pixel", label: "Pixels (TikTok e Facebook)" },
   ];
@@ -218,6 +220,7 @@ function Dashboard() {
           />
         ) : null}
         {tab === "analises" ? <AnalyticsTab days={days} /> : null}
+        {tab === "carrinhos" ? <AbandonedTab days={days} /> : null}
         {tab === "produtos" ? <ProductsTab days={days} /> : null}
         {tab === "pixel" ? <PixelTab /> : null}
       </div>
@@ -632,6 +635,140 @@ function SalesTab({
                 <tr>
                   <td colSpan={8} className="py-3 text-zinc-500">
                     Nenhum pedido encontrado.
+                  </td>
+                </tr>
+              ) : null}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
+function AbandonedTab({ days }: { days: number }) {
+  const fetchFn = useServerFn(adminAbandonedCarts);
+  const carts = useQuery({
+    queryKey: ["admin-abandoned", days],
+    queryFn: () => fetchFn({ data: { days } }),
+    refetchInterval: 60_000,
+  });
+  const data = carts.data;
+  const waLink = (phone: string) => {
+    const digits = phone.replace(/\D/g, "");
+    const full = digits.length <= 11 ? `55${digits}` : digits;
+    return `https://wa.me/${full}`;
+  };
+
+  if (carts.isPending) return <Card title="Carrinhos abandonados"><p className="text-sm text-zinc-400">Carregando…</p></Card>;
+
+  return (
+    <div className="space-y-4">
+      <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <Metric label="Pix nao pagos" value={String(data?.totals.pendingCount ?? 0)} />
+        <Metric label="Valor a recuperar" value={currency(data?.totals.pendingValue ?? 0)} accent />
+        <Metric label="Carrinhos sem Pix" value={String(data?.totals.abandonedSessions ?? 0)} />
+        <Metric label="Taxa de abandono" value={`${(data?.totals.abandonRate ?? 0).toFixed(1)}%`} />
+      </section>
+
+      <Card title="Pix gerado e nao pago (com contato)">
+        <div className="overflow-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="text-xs uppercase text-zinc-500">
+              <tr>
+                <th className="py-1">Cliente</th>
+                <th className="py-1">Contato</th>
+                <th className="py-1">Produtos</th>
+                <th className="py-1">Valor</th>
+                <th className="py-1">Local</th>
+                <th className="py-1">Origem</th>
+                <th className="py-1">Quando</th>
+                <th className="py-1" />
+              </tr>
+            </thead>
+            <tbody>
+              {(data?.pendingOrders ?? []).map((order) => (
+                <tr key={order.referenceId} className="border-t border-zinc-800 align-top">
+                  <td className="py-2">{order.name || "-"}</td>
+                  <td className="py-2 text-zinc-400">
+                    <div>{order.phone || "-"}</div>
+                    <div className="text-xs">{order.email || ""}</div>
+                  </td>
+                  <td className="py-2 text-zinc-300">
+                    {order.items.map((item) => `${item.quantity}x ${item.title}`).join(", ") || "-"}
+                  </td>
+                  <td className="py-2 text-amber-400">{currency(order.value)}</td>
+                  <td className="py-2 text-zinc-400">{order.place || "-"}</td>
+                  <td className="py-2 text-zinc-400">{order.source}</td>
+                  <td className="py-2 text-zinc-400">
+                    {order.minutesAgo < 60 ? `${order.minutesAgo} min` : time(order.createdAt)}
+                  </td>
+                  <td className="py-2">
+                    {order.phone ? (
+                      <a
+                        href={waLink(order.phone)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-lg bg-emerald-600 px-3 py-1 text-xs font-medium text-white"
+                      >
+                        WhatsApp
+                      </a>
+                    ) : null}
+                  </td>
+                </tr>
+              ))}
+              {(data?.pendingOrders ?? []).length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="py-3 text-zinc-500">
+                    Nenhum Pix pendente neste periodo.
+                  </td>
+                </tr>
+              ) : null}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      <Card title="Colocou no carrinho e saiu sem gerar Pix">
+        <div className="overflow-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="text-xs uppercase text-zinc-500">
+              <tr>
+                <th className="py-1">Produtos</th>
+                <th className="py-1">Valor</th>
+                <th className="py-1">Chegou ao checkout</th>
+                <th className="py-1">Ultima pagina</th>
+                <th className="py-1">Local</th>
+                <th className="py-1">Aparelho</th>
+                <th className="py-1">Origem</th>
+                <th className="py-1">Visto</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(data?.sessions ?? []).map((item) => (
+                <tr key={item.sessionId} className="border-t border-zinc-800">
+                  <td className="py-2 text-zinc-200">{item.products.join(", ")}</td>
+                  <td className="py-2 text-amber-400">{item.value ? currency(item.value) : "-"}</td>
+                  <td className="py-2">
+                    {item.reachedCheckout ? (
+                      <span className="text-rose-400">Sim</span>
+                    ) : (
+                      <span className="text-zinc-500">Nao</span>
+                    )}
+                  </td>
+                  <td className="py-2 text-zinc-400">{item.lastPath}</td>
+                  <td className="py-2 text-zinc-400">{item.place}</td>
+                  <td className="py-2 text-zinc-400">{item.device}</td>
+                  <td className="py-2 text-zinc-400">{item.source}</td>
+                  <td className="py-2 text-zinc-400">
+                    {item.minutesAgo < 60 ? `${item.minutesAgo} min` : time(item.lastSeen)}
+                  </td>
+                </tr>
+              ))}
+              {(data?.sessions ?? []).length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="py-3 text-zinc-500">
+                    Nenhum carrinho abandonado neste periodo.
                   </td>
                 </tr>
               ) : null}

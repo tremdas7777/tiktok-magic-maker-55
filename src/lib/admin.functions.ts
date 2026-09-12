@@ -764,3 +764,158 @@ export const adminTestMetaEvent = createServerFn({ method: "POST" }).handler(asy
   });
   return { ok: result.ok, message: result.message };
 });
+
+/* --------------------------------------------------- carrinhos abandonados */
+
+export const adminAbandonedCarts = createServerFn({ method: "POST" })
+  .inputValidator((data: { days?: number }) => ({ days: Math.min(90, Math.max(1, data?.days ?? 7)) }))
+  .handler(async ({ data }) => {
+    await requireAdmin();
+    const client = await db();
+    const since = sinceIso(data.days);
+
+    const [ordersRes, eventsRes] = await Promise.all([
+      client
+        .from("shop_orders")
+        .select(
+          "reference_id, status, amount_cents, customer_name, customer_email, customer_phone, city, state, items, utm, session_id, created_at",
+        )
+        .gte("created_at", since)
+        .order("created_at", { ascending: false })
+        .limit(3000),
+      client
+        .from("shop_events")
+        .select("session_id, event_type, product_id, product_title, value_cents, utm, device, city, country, created_at, path")
+        .gte("created_at", since)
+        .in("event_type", ["add_to_cart", "checkout_view", "cart_view", "pix_generated", "purchase"])
+        .order("created_at", { ascending: true })
+        .limit(40000),
+    ]);
+
+    const orders = (ordersRes.data ?? []) as AnyRecord[];
+    const events = (eventsRes.data ?? []) as AnyRecord[];
+
+    /* 1. Pix gerado mas nao pago (tem contato -> recuperavel) */
+    const pendingOrders = orders
+      .filter((o) => o.status !== "paid")
+      .map((o) => ({
+        referenceId: String(o.reference_id ?? ""),
+        status: String(o.status ?? "pending"),
+        value: (Number(o.amount_cents) || 0) / 100,
+        name: String(o.customer_name ?? ""),
+        email: String(o.customer_email ?? ""),
+        phone: String(o.customer_phone ?? ""),
+        place: [o.city, o.state].filter(Boolean).join(" / "),
+        items: ((o.items ?? []) as AnyRecord[]).map((item) => ({
+          title: String(item.titulo ?? item.title ?? "Produto"),
+          quantity: Number(item.quantidade ?? 1) || 1,
+        })),
+        source: String((o.utm ?? {}).utm_source ?? "direto"),
+        createdAt: String(o.created_at ?? ""),
+        minutesAgo: Math.round((Date.now() - new Date(String(o.created_at)).getTime()) / 60000),
+      }))
+      .slice(0, 200);
+
+    /* 2. Sessoes que colocaram no carrinho e nunca geraram Pix */
+    const orderedSessions = new Set(
+      orders.map((o) => String(o.session_id ?? "")).filter(Boolean),
+    );
+    const paidSessions = new Set(
+      orders.filter((o) => o.status === "paid").map((o) => String(o.session_id ?? "")).filter(Boolean),
+    );
+
+    type Bucket = {
+      sessionId: string;
+      products: Map<string, { title: string; value: number }>;
+      reachedCheckout: boolean;
+      generatedPix: boolean;
+      value: number;
+      device: string;
+      place: string;
+      source: string;
+      lastSeen: string;
+      lastPath: string;
+    };
+
+    const buckets = new Map<string, Bucket>();
+    for (const event of events) {
+      const sessionId = String(event.session_id ?? "");
+      if (!sessionId) continue;
+      const bucket =
+        buckets.get(sessionId) ??
+        {
+          sessionId,
+          products: new Map<string, { title: string; value: number }>(),
+          reachedCheckout: false,
+          generatedPix: false,
+          value: 0,
+          device: "",
+          place: "",
+          source: "direto",
+          lastSeen: "",
+          lastPath: "",
+        };
+
+      if (event.event_type === "add_to_cart") {
+        const key = String(event.product_id ?? event.product_title ?? "?");
+        bucket.products.set(key, {
+          title: String(event.product_title ?? "Produto"),
+          value: (Number(event.value_cents) || 0) / 100,
+        });
+      }
+      if (event.event_type === "checkout_view") bucket.reachedCheckout = true;
+      if (event.event_type === "pix_generated" || event.event_type === "purchase") bucket.generatedPix = true;
+      if ((Number(event.value_cents) || 0) > 0) bucket.value = (Number(event.value_cents) || 0) / 100;
+      if (event.device) bucket.device = String(event.device);
+      const place = [event.city, event.country].filter(Boolean).join(" / ");
+      if (place) bucket.place = place;
+      const source = String((event.utm ?? {}).utm_source ?? "");
+      if (source) bucket.source = source;
+      bucket.lastSeen = String(event.created_at ?? bucket.lastSeen);
+      if (event.path) bucket.lastPath = String(event.path);
+      buckets.set(sessionId, bucket);
+    }
+
+    const sessions = Array.from(buckets.values())
+      .filter(
+        (bucket) =>
+          bucket.products.size > 0 &&
+          !bucket.generatedPix &&
+          !orderedSessions.has(bucket.sessionId) &&
+          !paidSessions.has(bucket.sessionId),
+      )
+      .map((bucket) => {
+        const products = Array.from(bucket.products.values());
+        return {
+          sessionId: bucket.sessionId,
+          products: products.map((product) => product.title),
+          value: bucket.value || products.reduce((sum, product) => sum + product.value, 0),
+          reachedCheckout: bucket.reachedCheckout,
+          device: bucket.device || "-",
+          place: bucket.place || "-",
+          source: bucket.source,
+          lastPath: bucket.lastPath || "-",
+          lastSeen: bucket.lastSeen,
+          minutesAgo: Math.round((Date.now() - new Date(bucket.lastSeen).getTime()) / 60000),
+        };
+      })
+      .sort((a, b) => (a.lastSeen < b.lastSeen ? 1 : -1))
+      .slice(0, 200);
+
+    const cartSessionsTotal = Array.from(buckets.values()).filter((b) => b.products.size > 0).length;
+
+    return {
+      days: data.days,
+      totals: {
+        pendingCount: pendingOrders.length,
+        pendingValue: pendingOrders.reduce((sum, order) => sum + order.value, 0),
+        abandonedSessions: sessions.length,
+        abandonedValue: sessions.reduce((sum, item) => sum + item.value, 0),
+        checkoutAbandoned: sessions.filter((item) => item.reachedCheckout).length,
+        cartSessionsTotal,
+        abandonRate: cartSessionsTotal ? (sessions.length / cartSessionsTotal) * 100 : 0,
+      },
+      pendingOrders,
+      sessions,
+    };
+  });
