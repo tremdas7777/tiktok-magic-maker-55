@@ -4,15 +4,19 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 
 import {
+  adminAnalytics,
   adminCheckOrder,
+  adminGetMetaSettings,
   adminGetSettings,
   adminLive,
   adminLogin,
   adminLogout,
   adminOrders,
   adminOverview,
+  adminSaveMetaSettings,
   adminSaveSettings,
   adminSessionState,
+  adminTestMetaEvent,
   adminTestTikTokEvent,
   adminTopProducts,
 } from "@/lib/admin.functions";
@@ -42,7 +46,7 @@ const currency = (value: number) =>
 const time = (value?: string | null) =>
   value ? new Date(value).toLocaleString("pt-BR", { hour12: false }) : "-";
 
-type TabKey = "live" | "vendas" | "produtos" | "pixel";
+type TabKey = "live" | "vendas" | "analises" | "produtos" | "pixel";
 
 function AdminPage() {
   const sessionFn = useServerFn(adminSessionState);
@@ -136,6 +140,7 @@ function Dashboard() {
   const tabs: Array<{ key: TabKey; label: string }> = [
     { key: "live", label: "Ao vivo" },
     { key: "vendas", label: "Vendas" },
+    { key: "analises", label: "Análises" },
     { key: "produtos", label: "Produtos" },
     { key: "pixel", label: "Pixel TikTok" },
   ];
@@ -212,6 +217,7 @@ function Dashboard() {
             sources={overview.data?.sources ?? []}
           />
         ) : null}
+        {tab === "analises" ? <AnalyticsTab days={days} /> : null}
         {tab === "produtos" ? <ProductsTab days={days} /> : null}
         {tab === "pixel" ? <PixelTab /> : null}
       </div>
@@ -239,21 +245,87 @@ function Card({ title, children }: { title: string; children: React.ReactNode })
   );
 }
 
+const LIVE_RANGES: Array<{ label: string; minutes: number }> = [
+  { label: "1 min", minutes: 1 },
+  { label: "5 min", minutes: 5 },
+  { label: "15 min", minutes: 15 },
+  { label: "30 min", minutes: 30 },
+  { label: "1 hora", minutes: 60 },
+  { label: "3 horas", minutes: 180 },
+  { label: "12 horas", minutes: 720 },
+  { label: "24 horas", minutes: 1440 },
+];
+
+function RankList({ title, items }: { title: string; items: Array<{ label: string; value: number }> }) {
+  const max = Math.max(1, ...items.map((item) => item.value));
+  return (
+    <Card title={title}>
+      <ul className="space-y-2 text-sm">
+        {items.map((item) => (
+          <li key={item.label}>
+            <div className="flex justify-between gap-2 text-zinc-300">
+              <span className="truncate">{item.label}</span>
+              <span className="text-zinc-500">{item.value}</span>
+            </div>
+            <div className="mt-1 h-1.5 rounded bg-zinc-800">
+              <div className="h-1.5 rounded bg-rose-500/80" style={{ width: `${(item.value / max) * 100}%` }} />
+            </div>
+          </li>
+        ))}
+        {items.length === 0 ? <li className="text-zinc-500">Sem dados no período.</li> : null}
+      </ul>
+    </Card>
+  );
+}
+
 function LiveTab() {
   const liveFn = useServerFn(adminLive);
+  const [minutes, setMinutes] = useState(5);
+  const [autoRefresh, setAutoRefresh] = useState(true);
   const live = useQuery({
-    queryKey: ["admin-live"],
-    queryFn: () => liveFn({}),
-    refetchInterval: 5_000,
+    queryKey: ["admin-live", minutes],
+    queryFn: () => liveFn({ data: { minutes } }),
+    refetchInterval: autoRefresh ? (minutes <= 15 ? 5_000 : 20_000) : false,
   });
   const data = live.data;
+  const rangeLabel = LIVE_RANGES.find((range) => range.minutes === minutes)?.label ?? `${minutes} min`;
 
   return (
     <div className="space-y-4">
+      <div className="flex flex-wrap items-center gap-2">
+        {LIVE_RANGES.map((range) => (
+          <button
+            key={range.minutes}
+            onClick={() => setMinutes(range.minutes)}
+            className={`rounded-full px-3 py-1 text-xs ${
+              minutes === range.minutes
+                ? "bg-emerald-500 text-zinc-950"
+                : "border border-zinc-700 text-zinc-300"
+            }`}
+          >
+            {range.label}
+          </button>
+        ))}
+        <label className="ml-auto flex items-center gap-2 text-xs text-zinc-400">
+          <input
+            type="checkbox"
+            checked={autoRefresh}
+            onChange={(event) => setAutoRefresh(event.target.checked)}
+          />
+          Atualizar sozinho
+        </label>
+        <button
+          onClick={() => void live.refetch()}
+          className="rounded-lg border border-zinc-700 px-3 py-1 text-xs text-zinc-300"
+        >
+          Atualizar agora
+        </button>
+      </div>
+
       <div className="rounded-xl border border-emerald-800/50 bg-emerald-500/5 p-4">
         <p className="flex items-center gap-2 text-sm text-emerald-300">
           <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
-          {data?.onlineNow ?? 0} pessoa(s) navegando agora
+          {data?.onlineNow ?? 0} pessoa(s) na loja nos últimos {rangeLabel}
         </p>
         <div className="mt-3 grid grid-cols-2 gap-3 text-sm md:grid-cols-5">
           <Metric label="Home" value={String(data?.stages.home ?? 0)} />
@@ -262,19 +334,26 @@ function LiveTab() {
           <Metric label="Checkout" value={String(data?.stages.checkout ?? 0)} />
           <Metric label="Pagamento" value={String(data?.stages.payment ?? 0)} />
         </div>
+        <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-4">
+          <Metric label="Pix no período" value={String(data?.window.pixCount ?? 0)} />
+          <Metric label="Pagos no período" value={String(data?.window.paidCount ?? 0)} accent />
+          <Metric label="Faturamento" value={currency(data?.window.revenue ?? 0)} accent />
+          <Metric label="Ações registradas" value={String(data?.window.events ?? 0)} />
+        </div>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card title="Visitantes ativos">
           <div className="max-h-80 overflow-auto text-sm">
             {(data?.visitors ?? []).length === 0 ? (
-              <p className="text-zinc-500">Ninguém online nos últimos 5 minutos.</p>
+              <p className="text-zinc-500">Ninguém na loja nesse período.</p>
             ) : (
               <table className="w-full text-left">
                 <thead className="text-xs uppercase text-zinc-500">
                   <tr>
                     <th className="py-1">Página</th>
                     <th className="py-1">Origem</th>
+                    <th className="py-1">Local</th>
                     <th className="py-1">Aparelho</th>
                     <th className="py-1">Visto</th>
                   </tr>
@@ -282,8 +361,11 @@ function LiveTab() {
                 <tbody>
                   {(data?.visitors ?? []).map((visitor) => (
                     <tr key={visitor.sessionId} className="border-t border-zinc-800">
-                      <td className="max-w-[180px] truncate py-1.5">{visitor.path}</td>
+                      <td className="max-w-[160px] truncate py-1.5">{visitor.path}</td>
                       <td className="py-1.5 text-zinc-400">{String(visitor.source)}</td>
+                      <td className="py-1.5 text-zinc-400">
+                        {[visitor.city, visitor.country].filter(Boolean).join(" / ") || "-"}
+                      </td>
                       <td className="py-1.5 text-zinc-400">{visitor.device}</td>
                       <td className="py-1.5 text-zinc-500">{time(visitor.at)}</td>
                     </tr>
@@ -308,6 +390,13 @@ function LiveTab() {
             {(data?.feed ?? []).length === 0 ? <li className="text-zinc-500">Sem atividade.</li> : null}
           </ul>
         </Card>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <RankList title="Páginas mais vistas" items={data?.topPages ?? []} />
+        <RankList title="Origem do tráfego" items={data?.topSources ?? []} />
+        <RankList title="Aparelhos" items={data?.topDevices ?? []} />
+        <RankList title="Cidades" items={data?.topPlaces ?? []} />
       </div>
 
       <Card title="Últimos pedidos">
