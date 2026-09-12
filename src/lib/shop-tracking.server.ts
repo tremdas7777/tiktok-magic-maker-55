@@ -154,6 +154,8 @@ export async function recordPixOrder(
         { onConflict: "reference_id" },
       );
 
+    const utm = (order?.utm && typeof order.utm === "object" ? order.utm : {}) as AnyRecord;
+
     await sendTikTokServerEvent("InitiateCheckout", {
       value: Number(order?.valor ?? order?.total ?? 0),
       referenceId: String(result.referenceId ?? ""),
@@ -163,6 +165,24 @@ export async function recordPixOrder(
       userAgent: request.headers.get("user-agent") ?? "",
       contents: carrinho,
     });
+
+    const { sendMetaServerEvent } = await import("./meta-tracking.server");
+    await sendMetaServerEvent("InitiateCheckout", {
+      value: Number(order?.valor ?? order?.total ?? 0),
+      referenceId: String(result.referenceId ?? ""),
+      email: String(comprador.email ?? ""),
+      phone: String(comprador.telefone ?? ""),
+      firstName: String(comprador.nome ?? ""),
+      city: String(entrega.cidade ?? ""),
+      state: String(entrega.estado ?? ""),
+      fbc: String(utm.fbc ?? utm.fbclid ?? ""),
+      fbp: String(utm.fbp ?? ""),
+      userAgent: request.headers.get("user-agent") ?? "",
+      ip: request.headers.get("cf-connecting-ip") ?? "",
+      contents: carrinho,
+      eventSourceUrl: `${url.origin}/checkout.php`,
+    });
+
   } catch (error) {
     console.error("recordPixOrder error", error);
   }
@@ -213,6 +233,22 @@ export async function markOrderPaid(payin: AnyRecord): Promise<void> {
       userAgent: "",
       contents: row.items ?? [],
     });
+
+    const utmRow = (row.utm ?? {}) as AnyRecord;
+    const { sendMetaServerEvent } = await import("./meta-tracking.server");
+    await sendMetaServerEvent("Purchase", {
+      value: (row.amount_cents ?? 0) / 100,
+      referenceId: row.reference_id,
+      email: row.customer_email ?? "",
+      phone: row.customer_phone ?? "",
+      firstName: row.customer_name ?? "",
+      city: row.city ?? "",
+      state: row.state ?? "",
+      fbc: String(utmRow.fbc ?? utmRow.fbclid ?? ""),
+      fbp: String(utmRow.fbp ?? ""),
+      contents: row.items ?? [],
+    });
+
   } catch (error) {
     console.error("markOrderPaid error", error);
   }
@@ -362,6 +398,22 @@ export function handleShopTrackJs(): Response {
     if (clickId) sessionStorage.setItem('_shop_ttclid', clickId);
     else clickId = sessionStorage.getItem('_shop_ttclid') || '';
   } catch (e) {}
+
+  // Facebook click/browser ids so server-side Purchase events match the ad click.
+  try {
+    var fbclid = qp('fbclid');
+    if (fbclid) {
+      utm.fbclid = fbclid;
+      utm.fbc = 'fb.1.' + Date.now() + '.' + fbclid;
+      sessionStorage.setItem('_shop_fbc', utm.fbc);
+    } else {
+      var savedFbc = sessionStorage.getItem('_shop_fbc') || (document.cookie.match(/_fbc=([^;]+)/) || [])[1] || '';
+      if (savedFbc) utm.fbc = savedFbc;
+    }
+    var fbp = (document.cookie.match(/_fbp=([^;]+)/) || [])[1] || '';
+    if (fbp) utm.fbp = fbp;
+  } catch (e) {}
+
 
   function send(type, extra){
     var payload = Object.assign({

@@ -4,15 +4,19 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 
 import {
+  adminAnalytics,
   adminCheckOrder,
+  adminGetMetaSettings,
   adminGetSettings,
   adminLive,
   adminLogin,
   adminLogout,
   adminOrders,
   adminOverview,
+  adminSaveMetaSettings,
   adminSaveSettings,
   adminSessionState,
+  adminTestMetaEvent,
   adminTestTikTokEvent,
   adminTopProducts,
 } from "@/lib/admin.functions";
@@ -42,7 +46,7 @@ const currency = (value: number) =>
 const time = (value?: string | null) =>
   value ? new Date(value).toLocaleString("pt-BR", { hour12: false }) : "-";
 
-type TabKey = "live" | "vendas" | "produtos" | "pixel";
+type TabKey = "live" | "vendas" | "analises" | "produtos" | "pixel";
 
 function AdminPage() {
   const sessionFn = useServerFn(adminSessionState);
@@ -136,8 +140,9 @@ function Dashboard() {
   const tabs: Array<{ key: TabKey; label: string }> = [
     { key: "live", label: "Ao vivo" },
     { key: "vendas", label: "Vendas" },
+    { key: "analises", label: "Análises" },
     { key: "produtos", label: "Produtos" },
-    { key: "pixel", label: "Pixel TikTok" },
+    { key: "pixel", label: "Pixels (TikTok e Facebook)" },
   ];
 
   return (
@@ -212,6 +217,7 @@ function Dashboard() {
             sources={overview.data?.sources ?? []}
           />
         ) : null}
+        {tab === "analises" ? <AnalyticsTab days={days} /> : null}
         {tab === "produtos" ? <ProductsTab days={days} /> : null}
         {tab === "pixel" ? <PixelTab /> : null}
       </div>
@@ -239,21 +245,87 @@ function Card({ title, children }: { title: string; children: React.ReactNode })
   );
 }
 
+const LIVE_RANGES: Array<{ label: string; minutes: number }> = [
+  { label: "1 min", minutes: 1 },
+  { label: "5 min", minutes: 5 },
+  { label: "15 min", minutes: 15 },
+  { label: "30 min", minutes: 30 },
+  { label: "1 hora", minutes: 60 },
+  { label: "3 horas", minutes: 180 },
+  { label: "12 horas", minutes: 720 },
+  { label: "24 horas", minutes: 1440 },
+];
+
+function RankList({ title, items }: { title: string; items: Array<{ label: string; value: number }> }) {
+  const max = Math.max(1, ...items.map((item) => item.value));
+  return (
+    <Card title={title}>
+      <ul className="space-y-2 text-sm">
+        {items.map((item) => (
+          <li key={item.label}>
+            <div className="flex justify-between gap-2 text-zinc-300">
+              <span className="truncate">{item.label}</span>
+              <span className="text-zinc-500">{item.value}</span>
+            </div>
+            <div className="mt-1 h-1.5 rounded bg-zinc-800">
+              <div className="h-1.5 rounded bg-rose-500/80" style={{ width: `${(item.value / max) * 100}%` }} />
+            </div>
+          </li>
+        ))}
+        {items.length === 0 ? <li className="text-zinc-500">Sem dados no período.</li> : null}
+      </ul>
+    </Card>
+  );
+}
+
 function LiveTab() {
   const liveFn = useServerFn(adminLive);
+  const [minutes, setMinutes] = useState(5);
+  const [autoRefresh, setAutoRefresh] = useState(true);
   const live = useQuery({
-    queryKey: ["admin-live"],
-    queryFn: () => liveFn({}),
-    refetchInterval: 5_000,
+    queryKey: ["admin-live", minutes],
+    queryFn: () => liveFn({ data: { minutes } }),
+    refetchInterval: autoRefresh ? (minutes <= 15 ? 5_000 : 20_000) : false,
   });
   const data = live.data;
+  const rangeLabel = LIVE_RANGES.find((range) => range.minutes === minutes)?.label ?? `${minutes} min`;
 
   return (
     <div className="space-y-4">
+      <div className="flex flex-wrap items-center gap-2">
+        {LIVE_RANGES.map((range) => (
+          <button
+            key={range.minutes}
+            onClick={() => setMinutes(range.minutes)}
+            className={`rounded-full px-3 py-1 text-xs ${
+              minutes === range.minutes
+                ? "bg-emerald-500 text-zinc-950"
+                : "border border-zinc-700 text-zinc-300"
+            }`}
+          >
+            {range.label}
+          </button>
+        ))}
+        <label className="ml-auto flex items-center gap-2 text-xs text-zinc-400">
+          <input
+            type="checkbox"
+            checked={autoRefresh}
+            onChange={(event) => setAutoRefresh(event.target.checked)}
+          />
+          Atualizar sozinho
+        </label>
+        <button
+          onClick={() => void live.refetch()}
+          className="rounded-lg border border-zinc-700 px-3 py-1 text-xs text-zinc-300"
+        >
+          Atualizar agora
+        </button>
+      </div>
+
       <div className="rounded-xl border border-emerald-800/50 bg-emerald-500/5 p-4">
         <p className="flex items-center gap-2 text-sm text-emerald-300">
           <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
-          {data?.onlineNow ?? 0} pessoa(s) navegando agora
+          {data?.onlineNow ?? 0} pessoa(s) na loja nos últimos {rangeLabel}
         </p>
         <div className="mt-3 grid grid-cols-2 gap-3 text-sm md:grid-cols-5">
           <Metric label="Home" value={String(data?.stages.home ?? 0)} />
@@ -262,19 +334,26 @@ function LiveTab() {
           <Metric label="Checkout" value={String(data?.stages.checkout ?? 0)} />
           <Metric label="Pagamento" value={String(data?.stages.payment ?? 0)} />
         </div>
+        <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-4">
+          <Metric label="Pix no período" value={String(data?.window.pixCount ?? 0)} />
+          <Metric label="Pagos no período" value={String(data?.window.paidCount ?? 0)} accent />
+          <Metric label="Faturamento" value={currency(data?.window.revenue ?? 0)} accent />
+          <Metric label="Ações registradas" value={String(data?.window.events ?? 0)} />
+        </div>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card title="Visitantes ativos">
           <div className="max-h-80 overflow-auto text-sm">
             {(data?.visitors ?? []).length === 0 ? (
-              <p className="text-zinc-500">Ninguém online nos últimos 5 minutos.</p>
+              <p className="text-zinc-500">Ninguém na loja nesse período.</p>
             ) : (
               <table className="w-full text-left">
                 <thead className="text-xs uppercase text-zinc-500">
                   <tr>
                     <th className="py-1">Página</th>
                     <th className="py-1">Origem</th>
+                    <th className="py-1">Local</th>
                     <th className="py-1">Aparelho</th>
                     <th className="py-1">Visto</th>
                   </tr>
@@ -282,8 +361,11 @@ function LiveTab() {
                 <tbody>
                   {(data?.visitors ?? []).map((visitor) => (
                     <tr key={visitor.sessionId} className="border-t border-zinc-800">
-                      <td className="max-w-[180px] truncate py-1.5">{visitor.path}</td>
+                      <td className="max-w-[160px] truncate py-1.5">{visitor.path}</td>
                       <td className="py-1.5 text-zinc-400">{String(visitor.source)}</td>
+                      <td className="py-1.5 text-zinc-400">
+                        {[visitor.city, visitor.country].filter(Boolean).join(" / ") || "-"}
+                      </td>
                       <td className="py-1.5 text-zinc-400">{visitor.device}</td>
                       <td className="py-1.5 text-zinc-500">{time(visitor.at)}</td>
                     </tr>
@@ -308,6 +390,13 @@ function LiveTab() {
             {(data?.feed ?? []).length === 0 ? <li className="text-zinc-500">Sem atividade.</li> : null}
           </ul>
         </Card>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <RankList title="Páginas mais vistas" items={data?.topPages ?? []} />
+        <RankList title="Origem do tráfego" items={data?.topSources ?? []} />
+        <RankList title="Aparelhos" items={data?.topDevices ?? []} />
+        <RankList title="Cidades" items={data?.topPlaces ?? []} />
       </div>
 
       <Card title="Últimos pedidos">
@@ -605,7 +694,7 @@ function ProductsTab({ days }: { days: number }) {
   );
 }
 
-function PixelTab() {
+function TikTokPixelForm() {
   const getFn = useServerFn(adminGetSettings);
   const saveFn = useServerFn(adminSaveSettings);
   const testFn = useServerFn(adminTestTikTokEvent);
@@ -727,6 +816,318 @@ function PixelTab() {
           <li>• Pedidos já enviados aparecem como “enviado” na aba Vendas.</li>
         </ul>
       </Card>
+    </div>
+  );
+}
+
+function MetaPixelForm() {
+  const getFn = useServerFn(adminGetMetaSettings);
+  const saveFn = useServerFn(adminSaveMetaSettings);
+  const testFn = useServerFn(adminTestMetaEvent);
+  const queryClient = useQueryClient();
+  const settings = useQuery({ queryKey: ["admin-meta-settings"], queryFn: () => getFn({}) });
+
+  const [pixelIds, setPixelIds] = useState<string | null>(null);
+  const [accessToken, setAccessToken] = useState("");
+  const [testEventCode, setTestEventCode] = useState<string | null>(null);
+  const [serverEvents, setServerEvents] = useState<boolean | null>(null);
+  const [trackPageview, setTrackPageview] = useState<boolean | null>(null);
+  const [message, setMessage] = useState("");
+
+  const currentPixelIds = pixelIds ?? (settings.data?.pixelIds ?? []).join(", ");
+  const currentTestCode = testEventCode ?? settings.data?.testEventCode ?? "";
+  const currentServerEvents = serverEvents ?? settings.data?.serverEventsEnabled ?? true;
+  const currentTrackPageview = trackPageview ?? settings.data?.trackPageview ?? true;
+
+  const save = useMutation({
+    mutationFn: () =>
+      saveFn({
+        data: {
+          pixelIds: currentPixelIds,
+          accessToken,
+          testEventCode: currentTestCode,
+          serverEventsEnabled: currentServerEvents,
+          trackPageview: currentTrackPageview,
+        },
+      }),
+    onSuccess: () => {
+      setAccessToken("");
+      setMessage("Configuração do Facebook salva. A loja já carrega esse pixel.");
+      void queryClient.invalidateQueries({ queryKey: ["admin-meta-settings"] });
+    },
+    onError: () => setMessage("Não foi possível salvar."),
+  });
+
+  const test = useMutation({
+    mutationFn: () => testFn({}),
+    onSuccess: (result) => setMessage(result.message),
+    onError: () => setMessage("Falha ao enviar o evento de teste."),
+  });
+
+  return (
+    <div className="grid gap-4 lg:grid-cols-2">
+      <Card title="Pixel do Facebook / Instagram">
+        <div className="space-y-3 text-sm">
+          <label className="block">
+            <span className="text-xs text-zinc-400">ID do pixel (separe por vírgula para vários)</span>
+            <input
+              value={currentPixelIds}
+              onChange={(event) => setPixelIds(event.target.value)}
+              placeholder="123456789012345"
+              className="mt-1 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2"
+            />
+          </label>
+          <label className="block">
+            <span className="text-xs text-zinc-400">
+              Token da API de conversões {settings.data?.hasAccessToken ? "(salvo)" : ""}
+            </span>
+            <input
+              value={accessToken}
+              onChange={(event) => setAccessToken(event.target.value)}
+              type="password"
+              placeholder={settings.data?.hasAccessToken ? "••••••••" : "cole o token aqui"}
+              className="mt-1 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2"
+            />
+          </label>
+          <label className="block">
+            <span className="text-xs text-zinc-400">Código de teste (opcional)</span>
+            <input
+              value={currentTestCode}
+              onChange={(event) => setTestEventCode(event.target.value)}
+              className="mt-1 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2"
+            />
+          </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={currentServerEvents}
+              onChange={(event) => setServerEvents(event.target.checked)}
+            />
+            <span>Marcar vendas pelo servidor (recomendado)</span>
+          </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={currentTrackPageview}
+              onChange={(event) => setTrackPageview(event.target.checked)}
+            />
+            <span>Contar visitas de página no pixel</span>
+          </label>
+          {message ? <p className="text-emerald-400">{message}</p> : null}
+          <div className="flex gap-2">
+            <button
+              onClick={() => save.mutate()}
+              disabled={save.isPending}
+              className="rounded-lg bg-sky-500 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+            >
+              {save.isPending ? "Salvando…" : "Salvar"}
+            </button>
+            <button
+              onClick={() => test.mutate()}
+              disabled={test.isPending}
+              className="rounded-lg border border-zinc-700 px-4 py-2 text-sm"
+            >
+              Enviar evento de teste
+            </button>
+          </div>
+        </div>
+      </Card>
+
+      <Card title="O que é enviado ao Facebook">
+        <ul className="space-y-2 text-sm text-zinc-400">
+          <li>• Visita de página, produto visto, carrinho e início de compra pelo navegador.</li>
+          <li>• Início de compra e compra confirmada também pelo servidor, com o valor real.</li>
+          <li>• E-mail e telefone são enviados embaralhados, nunca abertos.</li>
+          <li>• O clique do anúncio é guardado para o Facebook reconhecer a venda.</li>
+          <li>• Cada venda tem um código único, então não conta duas vezes.</li>
+        </ul>
+      </Card>
+    </div>
+  );
+}
+
+function PixelTab() {
+  return (
+    <div className="space-y-6">
+      <TikTokPixelForm />
+      <MetaPixelForm />
+    </div>
+  );
+}
+
+function Trend({ label, now, before, growth, money }: { label: string; now: number; before: number; growth: number; money?: boolean }) {
+  const up = growth >= 0;
+  return (
+    <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-3">
+      <p className="text-xs uppercase tracking-wide text-zinc-500">{label}</p>
+      <p className="mt-1 text-lg font-semibold text-zinc-100">
+        {money ? currency(now) : now}
+      </p>
+      <p className={`text-xs ${up ? "text-emerald-400" : "text-rose-400"}`}>
+        {up ? "▲" : "▼"} {Math.abs(growth).toFixed(1)}% vs período anterior ({money ? currency(before) : before})
+      </p>
+    </div>
+  );
+}
+
+function AttributionTable({ title, rows }: { title: string; rows: Array<{ label: string; sessions: number; pix: number; paid: number; revenue: number; conversion: number }> }) {
+  return (
+    <Card title={title}>
+      <div className="overflow-auto">
+        <table className="w-full text-left text-sm">
+          <thead className="text-xs uppercase text-zinc-500">
+            <tr>
+              <th className="py-1">Origem</th>
+              <th className="py-1">Visitantes</th>
+              <th className="py-1">Pix</th>
+              <th className="py-1">Pagos</th>
+              <th className="py-1">Faturamento</th>
+              <th className="py-1">Conversão</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr key={row.label} className="border-t border-zinc-800">
+                <td className="max-w-[180px] truncate py-1.5">{row.label}</td>
+                <td className="py-1.5 text-zinc-400">{row.sessions}</td>
+                <td className="py-1.5 text-zinc-400">{row.pix}</td>
+                <td className="py-1.5 text-emerald-400">{row.paid}</td>
+                <td className="py-1.5">{currency(row.revenue)}</td>
+                <td className="py-1.5 text-zinc-400">{row.conversion.toFixed(2)}%</td>
+              </tr>
+            ))}
+            {rows.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="py-3 text-zinc-500">
+                  Sem dados no período.
+                </td>
+              </tr>
+            ) : null}
+          </tbody>
+        </table>
+      </div>
+    </Card>
+  );
+}
+
+function AnalyticsTab({ days }: { days: number }) {
+  const analyticsFn = useServerFn(adminAnalytics);
+  const analytics = useQuery({
+    queryKey: ["admin-analytics", days],
+    queryFn: () => analyticsFn({ data: { days } }),
+    refetchInterval: 60_000,
+  });
+  const data = analytics.data;
+
+  if (!data) {
+    return <Card title="Análises"><p className="text-sm text-zinc-400">Carregando análises…</p></Card>;
+  }
+
+  const maxHour = Math.max(1, ...data.hours.map((hour) => hour.revenue));
+  const maxWeekday = Math.max(1, ...data.weekdays.map((day) => day.revenue));
+
+  return (
+    <div className="space-y-4">
+      <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <Trend label="Faturamento" money {...data.comparison.revenue} />
+        <Trend label="Vendas pagas" {...data.comparison.paid} />
+        <Trend label="Pix gerados" {...data.comparison.pix} />
+        <Trend label="Visitantes" {...data.comparison.sessions} />
+      </section>
+
+      <Card title="Funil detalhado (com perdas)">
+        <div className="space-y-3">
+          {data.funnel.map((step) => (
+            <div key={step.label}>
+              <div className="flex justify-between text-xs text-zinc-400">
+                <span>{step.label}</span>
+                <span>
+                  {step.value} · {step.stepRate.toFixed(1)}% da etapa anterior · {step.totalRate.toFixed(1)}% do total
+                  {step.lost ? ` · ${step.lost} desistiram` : ""}
+                </span>
+              </div>
+              <div className="mt-1 h-2 rounded bg-zinc-800">
+                <div className="h-2 rounded bg-rose-500" style={{ width: `${Math.min(100, step.totalRate)}%` }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Card title="Melhores horários (faturamento)">
+          <div className="flex h-40 items-end gap-[2px]">
+            {data.hours.map((hour) => (
+              <div key={hour.hour} className="flex flex-1 flex-col items-center gap-1">
+                <div
+                  className="w-full rounded-t bg-emerald-500/70"
+                  style={{ height: `${Math.max(2, (hour.revenue / maxHour) * 120)}px` }}
+                  title={`${hour.hour}h: ${currency(hour.revenue)} · ${hour.paid} pagos · ${hour.sessions} visitantes`}
+                />
+                <span className="text-[9px] text-zinc-500">{hour.hour}</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        <Card title="Dias da semana">
+          <div className="flex h-40 items-end gap-2">
+            {data.weekdays.map((day) => (
+              <div key={day.label} className="flex flex-1 flex-col items-center gap-1">
+                <div
+                  className="w-full rounded-t bg-sky-500/70"
+                  style={{ height: `${Math.max(2, (day.revenue / maxWeekday) * 120)}px` }}
+                  title={`${day.label}: ${currency(day.revenue)} · ${day.paid} pagos`}
+                />
+                <span className="text-[10px] text-zinc-500">{day.label}</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Metric label="Abandono do carrinho" value={`${data.abandonment.cartAbandonRate.toFixed(1)}%`} />
+        <Metric label="Abandono do checkout" value={`${data.abandonment.checkoutAbandonRate.toFixed(1)}%`} />
+        <Metric label="Pix aguardando" value={`${data.payment.pendingCount} · ${currency(data.payment.pendingValue)}`} />
+        <Metric
+          label="Tempo até pagar"
+          value={`${data.payment.medianMinutes.toFixed(0)} min (média ${data.payment.averageMinutes.toFixed(0)})`}
+        />
+      </div>
+
+      <AttributionTable title="Por origem" rows={data.sources} />
+      <AttributionTable title="Por campanha" rows={data.campaigns} />
+      <AttributionTable title="Por mídia" rows={data.mediums} />
+
+      <div className="grid gap-4 lg:grid-cols-3">
+        <RankList title="Páginas mais vistas" items={data.topPages.map((page) => ({ label: page.label, value: page.views }))} />
+        <Card title="Cidades que mais compram">
+          <ul className="space-y-1 text-sm text-zinc-300">
+            {data.places.map((place) => (
+              <li key={place.label} className="flex justify-between gap-2">
+                <span className="truncate">{place.label}</span>
+                <span className="text-zinc-500">
+                  {place.paid} pagos · {currency(place.revenue)}
+                </span>
+              </li>
+            ))}
+            {data.places.length === 0 ? <li className="text-zinc-500">Sem dados.</li> : null}
+          </ul>
+        </Card>
+        <Card title="Faixas de ticket">
+          <ul className="space-y-1 text-sm text-zinc-300">
+            {data.ticketBuckets.map((bucket) => (
+              <li key={bucket.label} className="flex justify-between gap-2">
+                <span>{bucket.label}</span>
+                <span className="text-zinc-500">
+                  {bucket.paid} · {currency(bucket.revenue)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      </div>
     </div>
   );
 }
