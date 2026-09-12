@@ -154,6 +154,8 @@ export async function recordPixOrder(
         { onConflict: "reference_id" },
       );
 
+    const utm = (order?.utm && typeof order.utm === "object" ? order.utm : {}) as AnyRecord;
+
     await sendTikTokServerEvent("InitiateCheckout", {
       value: Number(order?.valor ?? order?.total ?? 0),
       referenceId: String(result.referenceId ?? ""),
@@ -163,6 +165,24 @@ export async function recordPixOrder(
       userAgent: request.headers.get("user-agent") ?? "",
       contents: carrinho,
     });
+
+    const { sendMetaServerEvent } = await import("./meta-tracking.server");
+    await sendMetaServerEvent("InitiateCheckout", {
+      value: Number(order?.valor ?? order?.total ?? 0),
+      referenceId: String(result.referenceId ?? ""),
+      email: String(comprador.email ?? ""),
+      phone: String(comprador.telefone ?? ""),
+      firstName: String(comprador.nome ?? ""),
+      city: String(entrega.cidade ?? ""),
+      state: String(entrega.estado ?? ""),
+      fbc: String(utm.fbc ?? utm.fbclid ?? ""),
+      fbp: String(utm.fbp ?? ""),
+      userAgent: request.headers.get("user-agent") ?? "",
+      ip: request.headers.get("cf-connecting-ip") ?? "",
+      contents: carrinho,
+      eventSourceUrl: `${url.origin}/checkout.php`,
+    });
+
   } catch (error) {
     console.error("recordPixOrder error", error);
   }
