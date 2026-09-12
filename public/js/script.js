@@ -562,9 +562,9 @@ window.scrollToTop = scrollToTop;
             ratingText.textContent = `${notas ? notas.toFixed(1) : ''} (${comentariosCount}) ${vendidos} vendidos`;
         }
 
-        // Description â€” handled above via #descricao-produto-dinamica
+        // Description — handled above via #descricao-produto-dinamica
 
-        // Buy link â€” agora abre o modal de variações em vez de ir direto para o checkout
+        // Buy link — agora abre o modal de variações em vez de ir direto para o checkout
         const buyBtn = document.getElementById('buy-now-btn');
         if (buyBtn) {
             buyBtn.setAttribute('href', 'javascript:void(0);');
