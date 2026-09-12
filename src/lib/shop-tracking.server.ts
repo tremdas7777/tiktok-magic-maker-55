@@ -125,6 +125,8 @@ export async function recordPixOrder(
     const carrinho = Array.isArray(order?.carrinho) ? order.carrinho : [];
     const url = new URL(request.url);
 
+    // Marca a venda já na criação do PIX (pendente): a conversão é enviada
+    // para TikTok/Meta aqui, e markOrderPaid não reenvia ao confirmar.
     await shopDb()
       .from("shop_orders")
       .upsert(
@@ -132,6 +134,7 @@ export async function recordPixOrder(
           reference_id: String(result.referenceId ?? ""),
           transaction_id: result.transactionId ? String(result.transactionId) : null,
           status: "pending",
+          tiktok_purchase_sent: true,
           amount_cents: Math.round(Number(order?.valor ?? order?.total ?? 0) * 100) || 0,
           customer_name: String(comprador.nome ?? "").slice(0, 200) || null,
           customer_email: String(comprador.email ?? "").slice(0, 200) || null,
@@ -191,6 +194,37 @@ export async function recordPixOrder(
       eventSourceUrl: `${url.origin}/checkout.php`,
     });
 
+    // Venda pendente também conta como conversão: dispara Purchase/CompletePayment
+    // já na criação do PIX (mesmo event_id do navegador => deduplicado).
+    const referenceId = String(result.referenceId ?? "");
+    const purchaseEventId = `${referenceId}_completepayment`;
+    const purchaseInput = {
+      value: Number(order?.valor ?? order?.total ?? 0),
+      referenceId,
+      email: String(comprador.email ?? ""),
+      phone: String(comprador.telefone ?? ""),
+      clickId: String(order?.click_id ?? utm.ttclid ?? ""),
+      userAgent: request.headers.get("user-agent") ?? "",
+      contents: carrinho,
+    };
+    await sendTikTokServerEvent("CompletePayment", { ...purchaseInput, eventId: purchaseEventId });
+    await sendMetaServerEvent("Purchase", {
+      value: purchaseInput.value,
+      referenceId,
+      eventId: `${referenceId}_purchase`,
+      email: purchaseInput.email,
+      phone: purchaseInput.phone,
+      firstName: String(comprador.nome ?? ""),
+      city: String(entrega.cidade ?? ""),
+      state: String(entrega.estado ?? ""),
+      fbc: String(utm.fbc ?? utm.fbclid ?? ""),
+      fbp: String(utm.fbp ?? ""),
+      userAgent: purchaseInput.userAgent,
+      ip: request.headers.get("cf-connecting-ip") ?? "",
+      contents: carrinho,
+      eventSourceUrl: `${url.origin}/payment.php`,
+    });
+
   } catch (error) {
     console.error("recordPixOrder error", error);
   }
@@ -211,6 +245,8 @@ export async function markOrderPaid(payin: AnyRecord): Promise<void> {
       : await query.eq("transaction_id", transactionId);
     const row = data?.[0] as AnyRecord | undefined;
     if (!row || row.status === "paid") return;
+    // A conversão já foi enviada na criação do PIX (venda pendente conta).
+    const alreadySent = row.tiktok_purchase_sent === true;
 
     await db
       .from("shop_orders")
@@ -232,30 +268,33 @@ export async function markOrderPaid(payin: AnyRecord): Promise<void> {
       utm: row.utm ?? {},
     });
 
-    await sendTikTokServerEvent("CompletePayment", {
-      value: (row.amount_cents ?? 0) / 100,
-      referenceId: row.reference_id,
-      email: row.customer_email ?? "",
-      phone: row.customer_phone ?? "",
-      clickId: row.click_id ?? "",
-      userAgent: "",
-      contents: row.items ?? [],
-    });
+    // Só reenvia a conversão se ela ainda não foi marcada na criação do PIX.
+    if (!alreadySent) {
+      await sendTikTokServerEvent("CompletePayment", {
+        value: (row.amount_cents ?? 0) / 100,
+        referenceId: row.reference_id,
+        email: row.customer_email ?? "",
+        phone: row.customer_phone ?? "",
+        clickId: row.click_id ?? "",
+        userAgent: "",
+        contents: row.items ?? [],
+      });
 
-    const utmRow = (row.utm ?? {}) as AnyRecord;
-    const { sendMetaServerEvent } = await import("./meta-tracking.server");
-    await sendMetaServerEvent("Purchase", {
-      value: (row.amount_cents ?? 0) / 100,
-      referenceId: row.reference_id,
-      email: row.customer_email ?? "",
-      phone: row.customer_phone ?? "",
-      firstName: row.customer_name ?? "",
-      city: row.city ?? "",
-      state: row.state ?? "",
-      fbc: String(utmRow.fbc ?? utmRow.fbclid ?? ""),
-      fbp: String(utmRow.fbp ?? ""),
-      contents: row.items ?? [],
-    });
+      const utmRow = (row.utm ?? {}) as AnyRecord;
+      const { sendMetaServerEvent } = await import("./meta-tracking.server");
+      await sendMetaServerEvent("Purchase", {
+        value: (row.amount_cents ?? 0) / 100,
+        referenceId: row.reference_id,
+        email: row.customer_email ?? "",
+        phone: row.customer_phone ?? "",
+        firstName: row.customer_name ?? "",
+        city: row.city ?? "",
+        state: row.state ?? "",
+        fbc: String(utmRow.fbc ?? utmRow.fbclid ?? ""),
+        fbp: String(utmRow.fbp ?? ""),
+        contents: row.items ?? [],
+      });
+    }
 
   } catch (error) {
     console.error("markOrderPaid error", error);
