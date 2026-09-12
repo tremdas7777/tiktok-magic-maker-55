@@ -173,10 +173,15 @@ export const adminOverview = createServerFn({ method: "POST" })
     };
   });
 
-export const adminLive = createServerFn({ method: "POST" }).handler(async () => {
-  await requireAdmin();
-  const client = await db();
-  const since = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+export const adminLive = createServerFn({ method: "POST" })
+  .inputValidator((data: { minutes?: number }) => ({
+    minutes: Math.min(1440, Math.max(1, Math.round(data?.minutes ?? 5))),
+  }))
+  .handler(async ({ data }) => {
+    await requireAdmin();
+    const client = await db();
+    const since = new Date(Date.now() - data.minutes * 60 * 1000).toISOString();
+
 
   const [eventsRes, ordersRes] = await Promise.all([
     client
