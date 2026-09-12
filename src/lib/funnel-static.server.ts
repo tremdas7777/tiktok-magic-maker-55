@@ -1,10 +1,12 @@
 import { FUNNEL_FILES } from "./funnel-pages.generated";
 import {
+  handleLegacyWebhook,
   handlePixOrderRequest,
   handlePixRequest,
   handlePixStatusRequest,
   PIX_PATHS,
 } from "./legacy-pix.server";
+import { handleShopTrackJs, handleTikTokConfigJs, handleTrackRequest } from "./shop-tracking.server";
 
 const PAGES: Record<string, string | undefined> = {
   "/": FUNNEL_FILES["index.html"],
@@ -21,12 +23,32 @@ const PAGES: Record<string, string | undefined> = {
   "/politica-de-privacidade.php": FUNNEL_FILES["politica-de-privacidade.php"],
 };
 
+const TRACK_SNIPPET = '<script src="/shop-track.js" defer></script>';
+
+function withTracking(html: string): string {
+  if (html.includes(TRACK_SNIPPET)) return html;
+  if (html.includes("</body>")) return html.replace("</body>", `${TRACK_SNIPPET}\n</body>`);
+  return html + TRACK_SNIPPET;
+}
+
 export async function handleFunnelRequest(request: Request): Promise<Response | null> {
   const url = new URL(request.url);
   const pathname = url.pathname.replace(/\/+$/, "") || "/";
 
   if (request.method === "POST" && PIX_PATHS.has(pathname)) {
     return handlePixRequest(request);
+  }
+
+  if (request.method === "POST" && pathname === "/api/public/track") {
+    return handleTrackRequest(request);
+  }
+
+  if (request.method === "GET" && pathname === "/tiktok-config.js") {
+    return handleTikTokConfigJs();
+  }
+
+  if (request.method === "GET" && pathname === "/shop-track.js") {
+    return handleShopTrackJs();
   }
 
   if (request.method === "GET" && (pathname === "/api/pix" || pathname === "/pix_teste.php")) {
@@ -45,10 +67,7 @@ export async function handleFunnelRequest(request: Request): Promise<Response | 
   }
 
   if (request.method === "POST" && pathname === "/webhooks/legacy") {
-    return new Response(JSON.stringify({ received: true }), {
-      status: 200,
-      headers: { "Content-Type": "application/json; charset=utf-8" },
-    });
+    return handleLegacyWebhook(request);
   }
 
   if (request.method !== "GET" && request.method !== "HEAD") {
@@ -58,7 +77,7 @@ export async function handleFunnelRequest(request: Request): Promise<Response | 
   const html = PAGES[pathname];
   if (!html) return null;
 
-  return new Response(request.method === "HEAD" ? null : html, {
+  return new Response(request.method === "HEAD" ? null : withTracking(html), {
     status: 200,
     headers: {
       "Content-Type": "text/html; charset=utf-8",
