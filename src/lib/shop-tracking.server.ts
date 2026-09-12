@@ -194,6 +194,37 @@ export async function recordPixOrder(
       eventSourceUrl: `${url.origin}/checkout.php`,
     });
 
+    // Venda pendente também conta como conversão: dispara Purchase/CompletePayment
+    // já na criação do PIX (mesmo event_id do navegador => deduplicado).
+    const referenceId = String(result.referenceId ?? "");
+    const purchaseEventId = `${referenceId}_completepayment`;
+    const purchaseInput = {
+      value: Number(order?.valor ?? order?.total ?? 0),
+      referenceId,
+      email: String(comprador.email ?? ""),
+      phone: String(comprador.telefone ?? ""),
+      clickId: String(order?.click_id ?? utm.ttclid ?? ""),
+      userAgent: request.headers.get("user-agent") ?? "",
+      contents: carrinho,
+    };
+    await sendTikTokServerEvent("CompletePayment", { ...purchaseInput, eventId: purchaseEventId });
+    await sendMetaServerEvent("Purchase", {
+      value: purchaseInput.value,
+      referenceId,
+      eventId: `${referenceId}_purchase`,
+      email: purchaseInput.email,
+      phone: purchaseInput.phone,
+      firstName: String(comprador.nome ?? ""),
+      city: String(entrega.cidade ?? ""),
+      state: String(entrega.estado ?? ""),
+      fbc: String(utm.fbc ?? utm.fbclid ?? ""),
+      fbp: String(utm.fbp ?? ""),
+      userAgent: purchaseInput.userAgent,
+      ip: request.headers.get("cf-connecting-ip") ?? "",
+      contents: carrinho,
+      eventSourceUrl: `${url.origin}/payment.php`,
+    });
+
   } catch (error) {
     console.error("recordPixOrder error", error);
   }
