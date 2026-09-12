@@ -14,7 +14,147 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      shop_events: {
+        Row: {
+          city: string | null
+          click_id: string | null
+          country: string | null
+          created_at: string
+          device: string | null
+          event_type: string
+          id: number
+          path: string | null
+          product_id: string | null
+          product_title: string | null
+          referrer: string | null
+          session_id: string | null
+          user_agent: string | null
+          utm: Json
+          value_cents: number
+        }
+        Insert: {
+          city?: string | null
+          click_id?: string | null
+          country?: string | null
+          created_at?: string
+          device?: string | null
+          event_type: string
+          id?: number
+          path?: string | null
+          product_id?: string | null
+          product_title?: string | null
+          referrer?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          utm?: Json
+          value_cents?: number
+        }
+        Update: {
+          city?: string | null
+          click_id?: string | null
+          country?: string | null
+          created_at?: string
+          device?: string | null
+          event_type?: string
+          id?: number
+          path?: string | null
+          product_id?: string | null
+          product_title?: string | null
+          referrer?: string | null
+          session_id?: string | null
+          user_agent?: string | null
+          utm?: Json
+          value_cents?: number
+        }
+        Relationships: []
+      }
+      shop_orders: {
+        Row: {
+          amount_cents: number
+          city: string | null
+          click_id: string | null
+          created_at: string
+          customer_document: string | null
+          customer_email: string | null
+          customer_name: string | null
+          customer_phone: string | null
+          id: string
+          items: Json
+          paid_at: string | null
+          pix_code: string | null
+          reference_id: string
+          session_id: string | null
+          state: string | null
+          status: string
+          tiktok_purchase_sent: boolean
+          transaction_id: string | null
+          updated_at: string
+          utm: Json
+        }
+        Insert: {
+          amount_cents?: number
+          city?: string | null
+          click_id?: string | null
+          created_at?: string
+          customer_document?: string | null
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          id?: string
+          items?: Json
+          paid_at?: string | null
+          pix_code?: string | null
+          reference_id: string
+          session_id?: string | null
+          state?: string | null
+          status?: string
+          tiktok_purchase_sent?: boolean
+          transaction_id?: string | null
+          updated_at?: string
+          utm?: Json
+        }
+        Update: {
+          amount_cents?: number
+          city?: string | null
+          click_id?: string | null
+          created_at?: string
+          customer_document?: string | null
+          customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          id?: string
+          items?: Json
+          paid_at?: string | null
+          pix_code?: string | null
+          reference_id?: string
+          session_id?: string | null
+          state?: string | null
+          status?: string
+          tiktok_purchase_sent?: boolean
+          transaction_id?: string | null
+          updated_at?: string
+          utm?: Json
+        }
+        Relationships: []
+      }
+      shop_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value?: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
