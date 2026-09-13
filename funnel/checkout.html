@@ -563,7 +563,7 @@ return of(input,init);};})();
         <div style="padding:14px 16px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;gap:8px">
           <span style="font-size:14px;color:#374151;font-weight:500;flex-shrink:0">BR +55</span>
           <div style="width:1px;height:20px;background:#e5e7eb;flex-shrink:0"></div>
-          <input type="tel" id="telefone" placeholder="Número de telefone" maxlength="15" inputmode="numeric" class="ttk-input" style="font-size:15px;border:none;padding:0">
+          <input type="tel" id="telefone" placeholder="(00) 00000-0000" maxlength="15" inputmode="tel" autocomplete="tel-national" enterkeyhint="next" class="ttk-input" style="font-size:15px;border:none;padding:0">
           <small id="telefone-error" style="color:#fe2c55;font-size:11px;margin-top:4px;display:none"></small>
         </div>
         <div style="padding:14px 16px">
@@ -578,26 +578,26 @@ return of(input,init);};})();
       </div>
       <div style="background:#fff">
         <div style="padding:14px 16px;border-bottom:1px solid #f3f4f6">
-          <input type="text" id="cep" placeholder="CEP / Código postal" maxlength="9" inputmode="numeric" class="ttk-input" style="font-size:15px">
+          <input type="text" id="cep" placeholder="00000-000" maxlength="9" inputmode="numeric" autocomplete="postal-code" enterkeyhint="next" class="ttk-input" style="font-size:15px">
           <small id="cep-msg" style="font-size:11px;margin-top:4px;display:none"></small>
           <small id="cep-error" style="color:#fe2c55;font-size:11px;margin-top:4px;display:none"></small>
         </div>
         <div style="padding:14px 16px;border-bottom:1px solid #f3f4f6;display:grid;grid-template-columns:1fr 1fr;gap:16px">
           <div>
-            <input type="text" id="estado" maxlength="2" placeholder="Estado / UF" class="ttk-input" style="font-size:15px;text-transform:uppercase">
+            <input type="text" id="estado" maxlength="2" placeholder="UF" autocomplete="address-level1" class="ttk-input" style="font-size:15px;text-transform:uppercase">
             <small id="estado-error" style="color:#fe2c55;font-size:11px;display:none"></small>
           </div>
           <div>
-            <input type="text" id="cidade" placeholder="Cidade" class="ttk-input" style="font-size:15px">
+            <input type="text" id="cidade" placeholder="Cidade" autocomplete="address-level2" class="ttk-input" style="font-size:15px">
             <small id="cidade-error" style="color:#fe2c55;font-size:11px;display:none"></small>
           </div>
         </div>
         <div style="padding:14px 16px;border-bottom:1px solid #f3f4f6">
-          <input type="text" id="bairro" placeholder="Bairro / Distrito" class="ttk-input" style="font-size:15px">
+          <input type="text" id="bairro" placeholder="Bairro / Distrito" autocomplete="address-level3" class="ttk-input" style="font-size:15px">
           <small id="bairro-error" style="color:#fe2c55;font-size:11px;display:none"></small>
         </div>
         <div style="padding:14px 16px;border-bottom:1px solid #f3f4f6">
-          <input type="text" id="endereco" placeholder="Endereço" class="ttk-input" style="font-size:15px">
+          <input type="text" id="endereco" placeholder="Endereço (rua/avenida)" autocomplete="address-line1" class="ttk-input" style="font-size:15px">
           <small id="endereco-error" style="color:#fe2c55;font-size:11px;display:none"></small>
         </div>
         <div style="padding:14px 16px;border-bottom:1px solid #f3f4f6">
@@ -615,8 +615,8 @@ return of(input,init);};})();
       </div>
       <div style="background:#fff">
         <div style="padding:14px 16px;border-bottom:1px solid #f3f4f6">
-          <input type="text" id="cpf" placeholder="CPF / CNPJ" maxlength="18" inputmode="numeric" class="ttk-input" style="font-size:15px" oninput="updateCpfLabel(this.value)">
-          <small id="cpf-error" style="color:#fe2c55;font-size:11px;display:none"></small>
+          <input type="text" id="cpf" placeholder="000.000.000-00" maxlength="18" inputmode="numeric" autocomplete="off" enterkeyhint="done" class="ttk-input" style="font-size:15px" oninput="updateCpfLabel(this.value)">
+          <small id="cpf-error" style="color:#fe2c55;font-size:11px;margin-top:4px;display:none"></small>
         </div>
         <div style="padding:12px 16px">
           <p style="font-size:12px;color:#9ca3af">O CPF será usado para emitir faturas.</p>
@@ -699,19 +699,40 @@ return of(input,init);};})();
 
     // ── Aplica máscaras e limpa erros ao digitar ─────────────────────────────
     document.addEventListener('DOMContentLoaded', () => {
+      const countDigits = (str, until) => {
+        let n = 0;
+        for (let i = 0; i < until && i < str.length; i++) {
+          if (str[i] >= '0' && str[i] <= '9') n++;
+        }
+        return n;
+      };
+      const posAfterDigits = (str, digits) => {
+        if (digits <= 0) return 0;
+        let n = 0;
+        for (let i = 0; i < str.length; i++) {
+          if (str[i] >= '0' && str[i] <= '9') {
+            n++;
+            if (n === digits) return i + 1;
+          }
+        }
+        return str.length;
+      };
       const bind = (id, maskFn) => {
         const el = document.getElementById(id);
         if (!el) return;
         el.addEventListener('input', () => {
-          const pos = el.selectionStart;
-          const prev = el.value;
-          el.value = maskFn(el.value);
-          // Reposiciona cursor quando máscara adiciona chars antes da posição atual
-          const diff = el.value.length - prev.length;
-          try { el.setSelectionRange(pos + diff, pos + diff); } catch (_) {}
+          const raw = el.value;
+          const atEnd = el.selectionStart === null || el.selectionStart >= raw.length;
+          const digitsBefore = countDigits(raw, el.selectionStart == null ? raw.length : el.selectionStart);
+          const masked = maskFn(raw);
+          if (masked !== raw) el.value = masked;
+          if (!atEnd) {
+            const next = posAfterDigits(masked, digitsBefore);
+            try { el.setSelectionRange(next, next); } catch (_) {}
+          }
           clearFieldError(id);
         });
-        el.addEventListener('blur', () => validarCampo(id));
+        el.addEventListener('blur', () => { if (el.value.trim()) validarCampo(id); });
       };
       bind('telefone', maskTelefone);
       bind('cpf', maskCpfCnpj);
@@ -719,8 +740,9 @@ return of(input,init);};})();
 
       ['email', 'nome', 'endereco', 'numero', 'bairro', 'cidade', 'estado'].forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.addEventListener('input', () => clearFieldError(id));
-        if (el) el.addEventListener('blur', () => validarCampo(id));
+        if (!el) return;
+        el.addEventListener('input', () => clearFieldError(id));
+        el.addEventListener('blur', () => { if (el.value.trim()) validarCampo(id); });
       });
     });
 
@@ -1206,21 +1228,37 @@ return of(input,init);};})();
       };
     }
 
-    /* ── Máscaras ─────────────────────────────────────────── */
+    /* ── Máscaras (formatação progressiva, dígito a dígito) ── */
     function maskTelefone(v) {
-      v = v.replace(/\D/g, '').slice(0, 11);
-      if (v.length <= 10) return v.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3').replace(/-$/, '');
-      return v.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3').replace(/-$/, '');
+      const d = String(v || '').replace(/\D/g, '').slice(0, 11);
+      if (!d) return '';
+      if (d.length <= 2) return '(' + d;
+      const meio = d.length <= 10 ? 4 : 5;
+      const p1 = d.slice(0, 2);
+      const p2 = d.slice(2, 2 + meio);
+      const p3 = d.slice(2 + meio);
+      let out = '(' + p1 + ') ' + p2;
+      if (p3) out += '-' + p3;
+      return out;
     }
     function maskCpfCnpj(v) {
-      v = v.replace(/\D/g, '');
-      if (v.length <= 11) return v.replace(/(\d{3})(\d{3})(\d{3})(\d{0,2})/, '$1.$2.$3-$4').replace(/-$/, '').replace(/\.$/g, '');
-      v = v.slice(0, 14);
-      return v.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{0,2})/, '$1.$2.$3/$4-$5').replace(/-$/, '').replace(/\/$/, '');
+      const d = String(v || '').replace(/\D/g, '').slice(0, 14);
+      if (!d) return '';
+      if (d.length <= 11) {
+        let out = d.slice(0, 3);
+        if (d.length > 3) out += '.' + d.slice(3, 6);
+        if (d.length > 6) out += '.' + d.slice(6, 9);
+        if (d.length > 9) out += '-' + d.slice(9, 11);
+        return out;
+      }
+      let out = d.slice(0, 2) + '.' + d.slice(2, 5) + '.' + d.slice(5, 8) + '/' + d.slice(8, 12);
+      if (d.length > 12) out += '-' + d.slice(12, 14);
+      return out;
     }
     function maskCep(v) {
-      v = v.replace(/\D/g, '').slice(0, 8);
-      return v.replace(/(\d{5})(\d{0,3})/, '$1-$2').replace(/-$/, '');
+      const d = String(v || '').replace(/\D/g, '').slice(0, 8);
+      if (d.length <= 5) return d;
+      return d.slice(0, 5) + '-' + d.slice(5);
     }
 
     /* ── Algoritmos CPF/CNPJ ────────────────────────────────── */
