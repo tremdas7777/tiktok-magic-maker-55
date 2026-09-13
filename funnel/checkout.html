@@ -1206,21 +1206,37 @@ return of(input,init);};})();
       };
     }
 
-    /* ── Máscaras ─────────────────────────────────────────── */
+    /* ── Máscaras (formatação progressiva, dígito a dígito) ── */
     function maskTelefone(v) {
-      v = v.replace(/\D/g, '').slice(0, 11);
-      if (v.length <= 10) return v.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3').replace(/-$/, '');
-      return v.replace(/(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3').replace(/-$/, '');
+      const d = String(v || '').replace(/\D/g, '').slice(0, 11);
+      if (!d) return '';
+      if (d.length <= 2) return '(' + d;
+      const meio = d.length <= 10 ? 4 : 5;
+      const p1 = d.slice(0, 2);
+      const p2 = d.slice(2, 2 + meio);
+      const p3 = d.slice(2 + meio);
+      let out = '(' + p1 + ') ' + p2;
+      if (p3) out += '-' + p3;
+      return out;
     }
     function maskCpfCnpj(v) {
-      v = v.replace(/\D/g, '');
-      if (v.length <= 11) return v.replace(/(\d{3})(\d{3})(\d{3})(\d{0,2})/, '$1.$2.$3-$4').replace(/-$/, '').replace(/\.$/g, '');
-      v = v.slice(0, 14);
-      return v.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{0,2})/, '$1.$2.$3/$4-$5').replace(/-$/, '').replace(/\/$/, '');
+      const d = String(v || '').replace(/\D/g, '').slice(0, 14);
+      if (!d) return '';
+      if (d.length <= 11) {
+        let out = d.slice(0, 3);
+        if (d.length > 3) out += '.' + d.slice(3, 6);
+        if (d.length > 6) out += '.' + d.slice(6, 9);
+        if (d.length > 9) out += '-' + d.slice(9, 11);
+        return out;
+      }
+      let out = d.slice(0, 2) + '.' + d.slice(2, 5) + '.' + d.slice(5, 8) + '/' + d.slice(8, 12);
+      if (d.length > 12) out += '-' + d.slice(12, 14);
+      return out;
     }
     function maskCep(v) {
-      v = v.replace(/\D/g, '').slice(0, 8);
-      return v.replace(/(\d{5})(\d{0,3})/, '$1-$2').replace(/-$/, '');
+      const d = String(v || '').replace(/\D/g, '').slice(0, 8);
+      if (d.length <= 5) return d;
+      return d.slice(0, 5) + '-' + d.slice(5);
     }
 
     /* ── Algoritmos CPF/CNPJ ────────────────────────────────── */
