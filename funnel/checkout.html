@@ -699,16 +699,37 @@ return of(input,init);};})();
 
     // ── Aplica máscaras e limpa erros ao digitar ─────────────────────────────
     document.addEventListener('DOMContentLoaded', () => {
+      const countDigits = (str, until) => {
+        let n = 0;
+        for (let i = 0; i < until && i < str.length; i++) {
+          if (str[i] >= '0' && str[i] <= '9') n++;
+        }
+        return n;
+      };
+      const posAfterDigits = (str, digits) => {
+        if (digits <= 0) return 0;
+        let n = 0;
+        for (let i = 0; i < str.length; i++) {
+          if (str[i] >= '0' && str[i] <= '9') {
+            n++;
+            if (n === digits) return i + 1;
+          }
+        }
+        return str.length;
+      };
       const bind = (id, maskFn) => {
         const el = document.getElementById(id);
         if (!el) return;
         el.addEventListener('input', () => {
-          const pos = el.selectionStart;
-          const prev = el.value;
-          el.value = maskFn(el.value);
-          // Reposiciona cursor quando máscara adiciona chars antes da posição atual
-          const diff = el.value.length - prev.length;
-          try { el.setSelectionRange(pos + diff, pos + diff); } catch (_) {}
+          const raw = el.value;
+          const atEnd = el.selectionStart === null || el.selectionStart >= raw.length;
+          const digitsBefore = countDigits(raw, el.selectionStart == null ? raw.length : el.selectionStart);
+          const masked = maskFn(raw);
+          if (masked !== raw) el.value = masked;
+          if (!atEnd) {
+            const next = posAfterDigits(masked, digitsBefore);
+            try { el.setSelectionRange(next, next); } catch (_) {}
+          }
           clearFieldError(id);
         });
         el.addEventListener('blur', () => validarCampo(id));
@@ -719,8 +740,9 @@ return of(input,init);};})();
 
       ['email', 'nome', 'endereco', 'numero', 'bairro', 'cidade', 'estado'].forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.addEventListener('input', () => clearFieldError(id));
-        if (el) el.addEventListener('blur', () => validarCampo(id));
+        if (!el) return;
+        el.addEventListener('input', () => clearFieldError(id));
+        el.addEventListener('blur', () => { if (el.value.trim()) validarCampo(id); });
       });
     });
 
