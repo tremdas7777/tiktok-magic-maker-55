@@ -563,7 +563,7 @@ return of(input,init);};})();
         <div style="padding:14px 16px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;gap:8px">
           <span style="font-size:14px;color:#374151;font-weight:500;flex-shrink:0">BR +55</span>
           <div style="width:1px;height:20px;background:#e5e7eb;flex-shrink:0"></div>
-          <input type="tel" id="telefone" placeholder="Número de telefone" maxlength="15" inputmode="numeric" class="ttk-input" style="font-size:15px;border:none;padding:0">
+          <input type="tel" id="telefone" placeholder="(00) 00000-0000" maxlength="15" inputmode="tel" autocomplete="tel-national" enterkeyhint="next" class="ttk-input" style="font-size:15px;border:none;padding:0">
           <small id="telefone-error" style="color:#fe2c55;font-size:11px;margin-top:4px;display:none"></small>
         </div>
         <div style="padding:14px 16px">
@@ -578,26 +578,26 @@ return of(input,init);};})();
       </div>
       <div style="background:#fff">
         <div style="padding:14px 16px;border-bottom:1px solid #f3f4f6">
-          <input type="text" id="cep" placeholder="CEP / Código postal" maxlength="9" inputmode="numeric" class="ttk-input" style="font-size:15px">
+          <input type="text" id="cep" placeholder="00000-000" maxlength="9" inputmode="numeric" autocomplete="postal-code" enterkeyhint="next" class="ttk-input" style="font-size:15px">
           <small id="cep-msg" style="font-size:11px;margin-top:4px;display:none"></small>
           <small id="cep-error" style="color:#fe2c55;font-size:11px;margin-top:4px;display:none"></small>
         </div>
         <div style="padding:14px 16px;border-bottom:1px solid #f3f4f6;display:grid;grid-template-columns:1fr 1fr;gap:16px">
           <div>
-            <input type="text" id="estado" maxlength="2" placeholder="Estado / UF" class="ttk-input" style="font-size:15px;text-transform:uppercase">
+            <input type="text" id="estado" maxlength="2" placeholder="UF" autocomplete="address-level1" class="ttk-input" style="font-size:15px;text-transform:uppercase">
             <small id="estado-error" style="color:#fe2c55;font-size:11px;display:none"></small>
           </div>
           <div>
-            <input type="text" id="cidade" placeholder="Cidade" class="ttk-input" style="font-size:15px">
+            <input type="text" id="cidade" placeholder="Cidade" autocomplete="address-level2" class="ttk-input" style="font-size:15px">
             <small id="cidade-error" style="color:#fe2c55;font-size:11px;display:none"></small>
           </div>
         </div>
         <div style="padding:14px 16px;border-bottom:1px solid #f3f4f6">
-          <input type="text" id="bairro" placeholder="Bairro / Distrito" class="ttk-input" style="font-size:15px">
+          <input type="text" id="bairro" placeholder="Bairro / Distrito" autocomplete="address-level3" class="ttk-input" style="font-size:15px">
           <small id="bairro-error" style="color:#fe2c55;font-size:11px;display:none"></small>
         </div>
         <div style="padding:14px 16px;border-bottom:1px solid #f3f4f6">
-          <input type="text" id="endereco" placeholder="Endereço" class="ttk-input" style="font-size:15px">
+          <input type="text" id="endereco" placeholder="Endereço (rua/avenida)" autocomplete="address-line1" class="ttk-input" style="font-size:15px">
           <small id="endereco-error" style="color:#fe2c55;font-size:11px;display:none"></small>
         </div>
         <div style="padding:14px 16px;border-bottom:1px solid #f3f4f6">
@@ -615,8 +615,8 @@ return of(input,init);};})();
       </div>
       <div style="background:#fff">
         <div style="padding:14px 16px;border-bottom:1px solid #f3f4f6">
-          <input type="text" id="cpf" placeholder="CPF / CNPJ" maxlength="18" inputmode="numeric" class="ttk-input" style="font-size:15px" oninput="updateCpfLabel(this.value)">
-          <small id="cpf-error" style="color:#fe2c55;font-size:11px;display:none"></small>
+          <input type="text" id="cpf" placeholder="000.000.000-00" maxlength="18" inputmode="numeric" autocomplete="off" enterkeyhint="done" class="ttk-input" style="font-size:15px" oninput="updateCpfLabel(this.value)">
+          <small id="cpf-error" style="color:#fe2c55;font-size:11px;margin-top:4px;display:none"></small>
         </div>
         <div style="padding:12px 16px">
           <p style="font-size:12px;color:#9ca3af">O CPF será usado para emitir faturas.</p>
@@ -732,7 +732,7 @@ return of(input,init);};})();
           }
           clearFieldError(id);
         });
-        el.addEventListener('blur', () => validarCampo(id));
+        el.addEventListener('blur', () => { if (el.value.trim()) validarCampo(id); });
       };
       bind('telefone', maskTelefone);
       bind('cpf', maskCpfCnpj);
