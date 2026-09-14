@@ -74,11 +74,16 @@ window.cart.updateCartCount = function() {
     carrinho = [];
   }
   const count = carrinho.reduce((acc, item) => acc + (item.quantidade || 1), 0);
-  document.querySelectorAll('#quantidade_x, #cart-count-header, #catPanelCartBadge').forEach(el => {
+  document.querySelectorAll('#quantidade_x, #catPanelCartBadge').forEach(el => {
     if (!el) return;
     el.textContent = count;
     el.style.display = count > 0 ? 'flex' : 'none';
   });
+  const headerCount = document.getElementById('cart-count-header');
+  if (headerCount) {
+    headerCount.textContent = count;
+    headerCount.style.display = 'inline';
+  }
 };
 
 document.addEventListener('DOMContentLoaded', function() {
