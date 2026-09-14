@@ -601,11 +601,11 @@ return of(input,init);};})();
           <small id="endereco-error" style="color:#fe2c55;font-size:11px;display:none"></small>
         </div>
         <div style="padding:14px 16px;border-bottom:1px solid #f3f4f6">
-          <input type="text" id="numero" placeholder='Nº da residência. Use "s/n" se nenhum' class="ttk-input" style="font-size:15px">
-          <small id="numero-error" style="color:#fe2c55;font-size:11px;display:none"></small>
+          <input type="text" id="complemento" placeholder="Apartamento, bloco, unidade etc. (opcional)" autocomplete="address-line2" enterkeyhint="next" class="ttk-input" style="font-size:15px">
         </div>
         <div style="padding:14px 16px">
-          <input type="text" id="complemento" placeholder="Apartamento, bloco, unidade etc. (opcional)" class="ttk-input" style="font-size:15px">
+          <input type="text" id="numero" placeholder='Nº da residência. Use "s/n" se nenhum' autocomplete="address-line3" enterkeyhint="next" class="ttk-input" style="font-size:15px">
+          <small id="numero-error" style="color:#fe2c55;font-size:11px;display:none"></small>
         </div>
       </div>
 
@@ -737,6 +737,17 @@ return of(input,init);};})();
       bind('telefone', maskTelefone);
       bind('cpf', maskCpfCnpj);
       bind('cep', maskCep);
+
+      const numero = document.getElementById('numero');
+      const cpf = document.getElementById('cpf');
+      if (numero && cpf) {
+        numero.addEventListener('keydown', (event) => {
+          if (event.key !== 'Enter') return;
+          event.preventDefault();
+          cpf.focus({ preventScroll: true });
+          cpf.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+      }
 
       ['email', 'nome', 'endereco', 'numero', 'bairro', 'cidade', 'estado'].forEach(id => {
         const el = document.getElementById(id);
